@@ -87,7 +87,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             </nav>
 
             <div className="sidebar-footer">
-                <div className="version-info">v2.0.1</div>
             </div>
         </aside>
     );
