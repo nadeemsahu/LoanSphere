@@ -3,7 +3,7 @@ import '../styles/Legal.css';
 
 const Terms = () => {
     return (
-        <section className="legal-section terms-section">
+        <section id="terms" className="legal-section terms-section">
             <div className="legal-content">
                 <h3>Terms and Conditions</h3>
                 <div className="legal-text">
