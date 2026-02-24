@@ -43,7 +43,7 @@
 }
 
 .form-input {
-    padding: var(--space-sm) var(--space-md);
+    padding: 10px var(--space-md);
     background-color: var(--bg-primary);
     color: var(--text-primary);
     border: 1px solid var(--border-medium);
@@ -75,11 +75,13 @@
 .btn-primary {
     background-color: var(--primary);
     color: var(--text-inverse);
-    padding: var(--space-sm) var(--space-md);
+    padding: 10px var(--space-lg);
     border-radius: var(--radius-md);
+    font-family: var(--font-sans);
     font-weight: 500;
     font-size: 0.875rem;
-    transition: background-color var(--transition-fast);
+    line-height: 1.25;
+    transition: all var(--transition-fast);
 }
 
 .btn-primary:hover {

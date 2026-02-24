@@ -1,7 +1,7 @@
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     width: 100%;
 }
 
@@ -13,7 +13,7 @@
 }
 
 .input-field {
-    padding: 9px var(--space-md);
+    padding: 10px var(--space-md);
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
     font-size: 0.875rem;
@@ -32,7 +32,7 @@
 
 .input-field:focus {
     border-color: var(--brand-primary);
-    box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.06);
+    box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.08);
 }
 
 .input-field::placeholder {

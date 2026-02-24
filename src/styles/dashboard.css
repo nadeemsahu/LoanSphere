@@ -3,7 +3,8 @@
 .dashboard-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: var(--space-lg);
+    /* Tighter vertical rhythm */
     max-width: 100%;
 }
 
@@ -14,7 +15,9 @@
     align-items: center;
     flex-wrap: wrap;
     gap: var(--space-md);
-    margin-bottom: var(--space-xl);
+    margin-bottom: 0;
+    /* Let dashboard container handle spacing */
+    padding-bottom: var(--space-sm);
 }
 
 .page-title {
@@ -216,7 +219,12 @@
 
 @media (max-width: 768px) {
     .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        /* Better tablet card scaling */
+    }
+
+    .page-header {
+        margin-bottom: var(--space-md);
     }
 }
 
@@ -239,5 +247,11 @@
 
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+
+    .content-section,
+    .content-section-md {
+        padding: var(--space-md);
+        /* tighter padding for mobile cards/tables */
     }
 }

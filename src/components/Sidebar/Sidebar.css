@@ -46,12 +46,13 @@
 
 .sidebar-nav {
     flex: 1;
-    padding: var(--space-lg) var(--space-md);
+    padding: var(--space-xl) var(--space-md);
+    /* More top padding */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    /* Tight gap */
+    gap: 8px;
+    /* Slightly looser gap */
 }
 
 .nav-item {
@@ -59,7 +60,8 @@
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    padding: var(--space-sm) var(--space-md);
+    padding: 10px var(--space-md);
+    /* Match standard height */
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     font-size: 0.875rem;
@@ -90,15 +92,16 @@
 .nav-item.active::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: calc(var(--space-md) * -1);
+    /* Pin to the left edge of the sidebar padding */
     top: 50%;
     transform: translateY(-50%);
-    height: 16px;
-    width: 3px;
+    height: 20px;
+    /* Taller */
+    width: 4px;
     background-color: var(--brand-primary);
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     display: block;
-    /* Explicitly visible for active */
 }
 
 

@@ -19,15 +19,19 @@
 .card-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    /* Fix icon alignment */
     margin-bottom: var(--space-md);
 }
 
 .card-label {
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
+    /* Stronger hierarchy */
+    text-transform: uppercase;
+    /* Standard metric styling */
+    letter-spacing: 0.05em;
     color: var(--text-secondary);
-    letter-spacing: 0.01em;
 }
 
 .card-icon-mini {
@@ -46,7 +50,7 @@
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.04em;
-    line-height: 1;
+    line-height: 1.1;
 }
 
 .card-footer {

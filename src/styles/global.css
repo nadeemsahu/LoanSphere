@@ -16,11 +16,11 @@ body {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     line-height: 1.6;
-    /* Increased for better readability */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* Fix for uneven letters */
+    letter-spacing: -0.01em;
+    /* Subtle modern tightening */
 }
 
 #root {
@@ -94,8 +94,8 @@ p:last-child {
 
 /* Scrollbar refinement */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -105,17 +105,21 @@ p:last-child {
 ::-webkit-scrollbar-thumb {
     background: var(--border-medium);
     border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    /* Fake margin */
+    background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-tertiary);
+    background-color: var(--text-tertiary);
 }
 
 /* Utility Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(4px);
+        /* Smoother, tighter motion */
     }
 
     to {
@@ -125,7 +129,8 @@ p:last-child {
 }
 
 .fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* Polished ease */
 }
 
 .delay-1 {

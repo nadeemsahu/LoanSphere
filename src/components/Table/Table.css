@@ -24,14 +24,18 @@
 }
 
 .clean-table th {
-    padding: 12px var(--space-md);
-    background-color: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.6875rem;
+    padding: 14px var(--space-md);
+    background-color: var(--bg-tertiary);
+    /* Better contrast header background */
+    color: var(--text-primary);
+    /* Brighter text for headers */
+    font-weight: 700;
+    font-size: 0.75rem;
+    /* Larger font size for legibility */
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border-bottom: 1px solid var(--border-light);
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border-medium);
+    /* Stronger separator */
     text-align: left;
 }
 
