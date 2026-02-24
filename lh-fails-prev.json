@@ -1,0 +1,28 @@
+{
+  "Perf": 88,
+  "A11y": 100,
+  "BP": 100,
+  "SEO": 100,
+  "Fails": [
+    {
+      "id": "first-contentful-paint",
+      "score": 0.48
+    },
+    {
+      "id": "largest-contentful-paint",
+      "score": 0.77
+    },
+    {
+      "id": "unused-javascript",
+      "score": 0.5
+    },
+    {
+      "id": "network-dependency-tree-insight",
+      "score": 0
+    },
+    {
+      "id": "render-blocking-insight",
+      "score": 0
+    }
+  ]
+}

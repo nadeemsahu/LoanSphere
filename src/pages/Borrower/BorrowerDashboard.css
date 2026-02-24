@@ -1,0 +1,64 @@
+/* BorrowerDashboard — page-specific styles only */
+
+/* Two-column grid for dashboard panels */
+.grid-2-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: var(--space-lg);
+}
+
+/* Loan detail rows inside a card */
+.loan-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px dashed var(--border-light);
+    padding-bottom: var(--space-sm);
+    font-size: 0.875rem;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row span:first-child {
+    color: var(--text-secondary);
+}
+
+.detail-row span:last-child {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* EMI Progress bar */
+.progress-bar-container {
+    margin-top: var(--space-md);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.progress-bg {
+    height: 6px;
+    background-color: var(--border-light);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--success-text);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-normal);
+}

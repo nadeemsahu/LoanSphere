@@ -1,0 +1,1 @@
+import{j as n}from"./index-BeNCzduY.js";import"./router-vendor-BRsksEZN.js";const p=({children:t,variant:r="primary",className:o="",...s})=>n.jsx("button",{className:`btn btn-${r} ${o}`,...s,children:t});export{p as B};

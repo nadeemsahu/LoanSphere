@@ -1,0 +1,242 @@
+/* Dashboard Common Layouts */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    max-width: 100%;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+}
+
+.page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.5;
+}
+
+/* ─── Badges & Counts ─── */
+.badge-count {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    margin-left: var(--space-sm);
+}
+
+/* ─── Alerts ─── */
+.alert-success {
+    background-color: var(--success-bg);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+    color: var(--success-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ─── Link Buttons ─── */
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.btn-link:hover {
+    background-color: var(--bg-tertiary);
+    text-decoration: underline;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+
+/* ─── Stat Card Grid ─── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-md);
+}
+
+/* ─── Two-column content layout ─── */
+.content-grid-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+/* ─── Content Section Card ─── */
+.content-section {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    min-width: 0;
+}
+
+.content-section-md {
+    max-width: 600px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-md);
+}
+
+/* Section header inside a card */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 28px;
+}
+
+.section-header h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+/* ─── Form Layouts ─── */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.bg-secondary {
+    background-color: var(--bg-secondary);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+}
+
+.form-actions-end {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.w-full {
+    width: 100%;
+}
+
+/* ─── Status Badges ─── */
+.status-active {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+}
+
+.status-pending {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+.status-rejected,
+.status-failed {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+}
+
+.status-closed,
+.status-blocked {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.status-success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+}
+
+.status-disbursement {
+    background-color: var(--info-bg);
+    color: var(--info-text);
+}
+
+.text-secondary-xs {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+    .content-grid-2-1 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-sm);
+        padding-bottom: var(--space-md);
+    }
+
+    .header-actions {
+        justify-content: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}

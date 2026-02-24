@@ -1,0 +1,133 @@
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-primary);
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    transition: transform var(--transition-normal), width var(--transition-normal);
+}
+
+.sidebar-header {
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-lg);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.logo-icon {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--brand-primary);
+    margin-right: var(--space-sm);
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+}
+
+.sidebar-close-btn {
+    display: none;
+    /* Hidden by default */
+    margin-left: auto;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--text-secondary);
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: var(--space-lg) var(--space-md);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* Tight gap */
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    opacity: 0.8;
+}
+
+.nav-item:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    opacity: 1;
+}
+
+.nav-item.active {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    font-weight: 600;
+    opacity: 1;
+}
+
+/* Sidebar Active Indicator Bar (Optional style preference for fintech) */
+.nav-item.active {
+    position: relative;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 16px;
+    width: 3px;
+    background-color: var(--brand-primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    display: block;
+    /* Explicitly visible for active */
+}
+
+
+.nav-icon {
+    margin-right: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-footer {
+    padding: var(--space-md);
+    border-top: 1px solid var(--border-light);
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+/* Mobile Transform */
+@media (max-width: 640px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-close-btn {
+        display: block;
+    }
+}

@@ -1,0 +1,22 @@
+/* LenderDashboard — page-specific styles */
+
+.offer-form {
+    padding: var(--space-sm) 0;
+}
+
+.form-row {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.form-spacer {
+    flex: 1;
+    min-width: 160px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-md);
+}

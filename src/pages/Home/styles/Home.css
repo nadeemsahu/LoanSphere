@@ -1,0 +1,149 @@
+:root {
+    --home-bg: #ffffff;
+    --home-text: #1a1a1a;
+    --home-text-secondary: #666666;
+    --home-border: #e5e5e5;
+    --home-primary: #000000;
+    --home-primary-hover: #333333;
+    --home-card-bg: #ffffff;
+    --home-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --font-main: 'Inter', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--home-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+    background: #333;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb {
+    background: #ccc;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+[data-theme='dark'] {
+    --home-bg: #09090b;
+    --home-text: #ffffff;
+    --home-text-secondary: #d4d4d8;
+    --home-border: #27272a;
+    --home-primary: #ffffff;
+    --home-primary-hover: #e4e4e7;
+    --home-card-bg: #18181b;
+    --home-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --home-btn-bg: #ffffff;
+    --home-btn-text: #000000;
+}
+
+.homepage-container {
+    font-family: var(--font-main);
+    color: var(--home-text);
+    background-color: var(--home-bg);
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+}
+
+section {
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--home-text);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+p {
+    color: var(--home-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Shared Button Styles for Landing Page */
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    font-family: var(--font-main);
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--home-primary);
+    color: var(--home-bg);
+}
+
+[data-theme='dark'] .btn-primary {
+    background-color: var(--home-btn-bg);
+    color: var(--home-btn-text);
+}
+
+.btn-primary:hover {
+    background-color: var(--home-primary-hover);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--home-primary);
+    border-color: var(--home-border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--home-primary);
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}

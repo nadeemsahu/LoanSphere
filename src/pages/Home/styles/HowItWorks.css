@@ -1,0 +1,39 @@
+.how-it-works-section {
+    background-color: var(--home-bg);
+}
+
+.steps-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 3rem;
+    position: relative;
+}
+
+.step-item {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #71717a;
+    margin-bottom: 1rem;
+    font-family: var(--font-main);
+}
+
+.step-item h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .steps-container {
+        flex-direction: column;
+        gap: 3rem;
+    }
+}
