@@ -263,4 +263,8 @@
     .breadcrumb {
         display: none;
     }
+
+    .navbar-right {
+        gap: var(--space-xs);
+    }
 }

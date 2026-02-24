@@ -72,7 +72,7 @@
 
 .pagination-info {
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    color: inherit;
 }
 
 .pagination-controls {

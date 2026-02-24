@@ -49,8 +49,8 @@
 /* Outline: transparent fill, solid border */
 .btn-outline {
     background-color: transparent;
-    color: var(--text-primary);
-    border-color: var(--border-medium);
+    color: inherit;
+    border-color: currentColor;
 }
 
 .btn-outline:hover:not(:disabled) {

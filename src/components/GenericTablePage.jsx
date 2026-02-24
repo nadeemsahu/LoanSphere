@@ -96,9 +96,13 @@ const GenericTablePage = ({ title, type }) => {
 
     const handleAddUser = () => {
         if (!isAdmin) return;
-        const newUser = { name: 'New User', email: `user${Date.now()}@loansphere.com`, role: 'borrower', status: 'Active' };
+        const name = window.prompt("Enter new user's name:");
+        if (!name) return;
+        const email = window.prompt("Enter new user's email:", `${name.toLowerCase().replace(/\s+/g, '.')}@loansphere.com`);
+        if (!email) return;
+        const newUser = { name, email, role: 'borrower', status: 'Active' };
         addUser(newUser);
-        showFeedback('New user added to platform.');
+        showFeedback(`New user ${name} added.`);
     };
 
     // Build columns based on type and role
@@ -192,7 +196,7 @@ const GenericTablePage = ({ title, type }) => {
                 { header: 'Date', accessor: 'date' },
                 { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
                 { header: 'Type', accessor: 'type' },
-                { header: 'Borrower', accessor: 'borrower' },
+                { header: 'Borrower', render: (row) => row.borrower || '—' },
                 { header: 'Status', render: (row) => <span className={`status-badge status-${(row.status || 'success').toLowerCase()}`}>{row.status}</span> },
                 ...(!isAnalyst ? [{
                     header: 'Receipt',

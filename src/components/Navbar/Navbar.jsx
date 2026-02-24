@@ -15,7 +15,7 @@ const getBreadcrumb = (pathname) => {
         'admin': 'Dashboard',
         'lender': 'Overview',
         'borrower': 'Dashboard',
-        'analyst': 'Analytics',
+        'analyst': 'Dashboard',
         'create-loan': 'Create Offer',
         'offers': 'Loan Offers',
         'borrowers': 'Borrower List',

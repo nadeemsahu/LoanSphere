@@ -70,7 +70,7 @@ export const DataProvider = ({ children }) => {
     };
 
     const removeUser = (id) => {
-        setUsers(prev => prev.filter(u => u.id !== id));
+        setUsers(prev => prev.filter(u => String(u.id) !== String(id)));
         logActivity('User Removed', 'Admin', `Removed user ID ${id}`);
         addNotification(`User removed (ID: ${id})`, 'error');
     };
@@ -95,7 +95,7 @@ export const DataProvider = ({ children }) => {
     };
 
     const deleteLoan = (id) => {
-        setLoans(prev => prev.filter(l => l.id !== id));
+        setLoans(prev => prev.filter(l => String(l.id) !== String(id)));
         logActivity('Loan Deleted', 'Admin', `Deleted loan #${id}`);
         addNotification(`Loan #${id} deleted`, 'error');
     };

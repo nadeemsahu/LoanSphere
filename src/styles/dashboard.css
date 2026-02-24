@@ -232,7 +232,8 @@
         justify-content: flex-start;
     }
 
-    .form-grid {
+    .form-grid,
+    .form-row-2 {
         grid-template-columns: 1fr;
     }
 
