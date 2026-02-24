@@ -1,1 +1,0 @@
-import{j as s}from"./index-BeNCzduY.js";import"./router-vendor-BRsksEZN.js";const a=({label:t,type:e="text",className:i="",...n})=>s.jsxs("div",{className:`input-group ${i}`,children:[t&&s.jsx("label",{className:"input-label",children:t}),s.jsx("input",{type:e,className:"input-field",...n})]});export{a as I};
