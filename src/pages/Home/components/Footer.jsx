@@ -10,6 +10,7 @@ const Footer = () => {
                     <a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
                     <a href="#about" onClick={(e) => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }); }}>About</a>
                     <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); }}>Contact</a>
+                    <a href="https://www.linkedin.com/in/nadeemsahun/" target="_blank" rel="noopener noreferrer">Connect</a>
                 </div>
                 <div className="footer-legal">
                     <a href="#legal" onClick={(e) => { e.preventDefault(); document.getElementById('legal').scrollIntoView({ behavior: 'smooth' }); }}>Privacy Policy</a>

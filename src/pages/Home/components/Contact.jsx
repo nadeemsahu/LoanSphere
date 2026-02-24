@@ -27,6 +27,7 @@ const Contact = () => {
                 <div className="contact-header">
                     <h2>Get in Touch</h2>
                     <p>Have questions? We're here to help.</p>
+                    <p>Email us at: <a href="mailto:nadeemsahun@gmail.com">nadeemsahun@gmail.com</a></p>
                 </div>
                 <form className="contact-form" onSubmit={handleSubmit}>
                     <div className="form-group">
