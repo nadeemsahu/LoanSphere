@@ -29,7 +29,9 @@ const BorrowerApplications = () => {
         }
     };
 
-    const pendingApplications = loans.filter(l => l.status === 'Pending' && l.approvedBy === lenderName);
+    // Show all pending loans — any lender can approve/reject pending applications
+    // (approvedBy is null on pending loans; it only gets set after a decision)
+    const pendingApplications = loans.filter(l => l.status === 'Pending');
 
     const columns = [
         { header: 'App ID', accessor: 'id' },
@@ -46,7 +48,7 @@ const BorrowerApplications = () => {
                     <button className="btn btn-outline btn-sm" onClick={() => handleApprove(row.id)}>
                         Approve
                     </button>
-                    <button className="btn btn-outline btn-sm" style={{ color: '#ef4444', borderColor: '#ef4444' }} onClick={() => handleReject(row.id)}>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleReject(row.id)}>
                         Reject
                     </button>
                 </div>
@@ -62,7 +64,7 @@ const BorrowerApplications = () => {
             </div>
 
             {actionFeedback && (
-                <div role="alert" aria-live="polite" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.4)', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', color: '#22c55e', fontSize: '0.875rem', fontWeight: 500 }}>
+                <div role="alert" aria-live="polite" className="alert-success">
                     {actionFeedback}
                 </div>
             )}

@@ -82,7 +82,7 @@ const UserManagement = () => {
                     <button className="btn btn-outline btn-sm" onClick={() => handleToggleStatus(row.id, row.status)}>
                         {row.status === 'Blocked' ? 'Activate' : 'Deactivate'}
                     </button>
-                    <button className="btn btn-outline btn-sm" style={{ color: '#ef4444', borderColor: '#ef4444' }} onClick={() => handleRemoveUser(row.id, row.name)}>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleRemoveUser(row.id, row.name)}>
                         Delete
                     </button>
                 </div>
@@ -101,7 +101,7 @@ const UserManagement = () => {
             </div>
 
             {actionFeedback && (
-                <div role="alert" aria-live="polite" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.4)', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', color: '#22c55e', fontSize: '0.875rem', fontWeight: 500 }}>
+                <div role="alert" aria-live="polite" className="alert-success">
                     {actionFeedback}
                 </div>
             )}

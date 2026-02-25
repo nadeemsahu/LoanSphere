@@ -28,7 +28,7 @@ const AdminDashboard = () => {
                     <button className="btn btn-outline btn-sm" onClick={() => window.location.reload()}>
                         Refresh Data
                     </button>
-                    <button className="btn btn-primary btn-sm">
+                    <button className="btn btn-primary btn-sm" onClick={() => window.print()}>
                         Download Report
                     </button>
                 </div>

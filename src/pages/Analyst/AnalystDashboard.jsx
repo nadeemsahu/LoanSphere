@@ -42,15 +42,15 @@ const AnalystDashboard = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Loans</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--primary-color)' }}>{activeCount}</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-primary)' }}>{activeCount}</div>
                     </div>
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Closed (Paid Off)</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--success-color, #22c55e)' }}>{closedCount}</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--success-text)' }}>{closedCount}</div>
                     </div>
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Defaulted</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--danger-color, #ef4444)' }}>{defaultedCount}</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--danger-text)' }}>{defaultedCount}</div>
                     </div>
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Total Originated</div>

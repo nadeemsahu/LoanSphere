@@ -60,7 +60,7 @@ const BrowseOffers = () => {
             </div>
 
             {feedbackMsg && (
-                <div role="alert" aria-live="polite" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.4)', padding: '0.875rem 1rem', borderRadius: '8px', marginBottom: '1rem', color: '#22c55e', fontWeight: 500, fontSize: '0.9rem' }}>
+                <div role="alert" aria-live="polite" className="alert-success">
                     {feedbackMsg}
                 </div>
             )}

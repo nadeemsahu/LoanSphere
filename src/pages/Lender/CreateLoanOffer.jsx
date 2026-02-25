@@ -51,7 +51,7 @@ const CreateLoanOffer = () => {
                     </div>
                 )}
                 {error && (
-                    <div role="alert" className="alert-error" style={{ marginBottom: '1.5rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '12px', borderRadius: '8px', fontSize: '0.875rem' }}>
+                    <div role="alert" className="alert-error">
                         ⚠️ {error}
                     </div>
                 )}
@@ -112,9 +112,9 @@ const CreateLoanOffer = () => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 placeholder="e.g. For small business expansion only"
-                                className="form-input"
+                                className="input-field"
                                 rows="3"
-                                style={{ width: '100%', resize: 'vertical' }}
+                                style={{ resize: 'vertical' }}
                             />
                         </div>
                     </div>
@@ -128,9 +128,9 @@ const CreateLoanOffer = () => {
                                 value={formData.optionalTerms}
                                 onChange={handleChange}
                                 placeholder="e.g. Requires 680+ credit score, collateral needed"
-                                className="form-input"
+                                className="input-field"
                                 rows="2"
-                                style={{ width: '100%', resize: 'vertical' }}
+                                style={{ resize: 'vertical' }}
                             />
                         </div>
                     </div>

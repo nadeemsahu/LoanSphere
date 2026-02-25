@@ -99,7 +99,63 @@
     --danger-text: #fecaca;
     --danger: #ef4444;
 
+    --success-bg: #052e16;
+    --success-text: #86efac;
+
+    --warning-bg: #422006;
+    --warning-text: #fde68a;
+
+    --info-bg: #1e3a5f;
+    --info-text: #93c5fd;
+
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Global dark mode for ALL native form elements ─── */
+/* Ensures selects, inputs, textareas always use theme colors, never browser defaults */
+[data-theme='dark'] input,
+[data-theme='dark'] select,
+[data-theme='dark'] textarea,
+[data-theme='dark'] .form-input,
+[data-theme='dark'] .input-field {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-medium) !important;
+    color-scheme: dark;
+}
+
+[data-theme='dark'] input::placeholder,
+[data-theme='dark'] textarea::placeholder,
+[data-theme='dark'] .form-input::placeholder,
+[data-theme='dark'] .input-field::placeholder {
+    color: var(--text-tertiary) !important;
+}
+
+[data-theme='dark'] input:focus,
+[data-theme='dark'] select:focus,
+[data-theme='dark'] textarea:focus,
+[data-theme='dark'] .form-input:focus,
+[data-theme='dark'] .input-field:focus {
+    border-color: var(--border-active) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12) !important;
+    outline: none;
+}
+
+/* Select arrow color fix for dark mode */
+[data-theme='dark'] select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Option elements in dark mode */
+[data-theme='dark'] option {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
