@@ -65,8 +65,14 @@ export const DataProvider = ({ children }) => {
 
     const blockUser = (id) => {
         setUsers(prev => prev.map(u => u.id === id ? { ...u, status: u.status === 'Blocked' ? 'Active' : 'Blocked' } : u));
-        logActivity('User Block Toggle', 'Admin', `Toggled block for user ID ${id}`);
-        addNotification(`User status toggled for ID ${id}`, 'warning');
+        logActivity('User Status Toggle', 'Admin', `Toggled status for user ID ${id}`);
+        addNotification(`User status updated`, 'warning');
+    };
+
+    const editUserRole = (id, newRole) => {
+        setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
+        logActivity('User Role Update', 'Admin', `Changed role for user ID ${id} to ${newRole}`);
+        addNotification(`User role updated to ${newRole}`, 'success');
     };
 
     const removeUser = (id) => {
@@ -187,7 +193,7 @@ export const DataProvider = ({ children }) => {
 
     return (
         <DataContext.Provider value={{
-            users, addUser, blockUser, removeUser,
+            users, addUser, blockUser, removeUser, editUserRole,
             loans, approveLoan, deleteLoan, applyForLoan,
             offers, createOffer, applyForOffer,
             transactions, addPayment,

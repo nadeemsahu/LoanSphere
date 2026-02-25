@@ -20,6 +20,12 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+}
+
+.auth-header:hover {
+    opacity: 0.8;
 }
 
 .auth-header .logo-icon svg {
@@ -39,4 +45,23 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-light);
+}
+
+.auth-footer-nav {
+    text-align: center;
+    margin-top: calc(var(--space-sm) * -1);
+}
+
+.back-to-home-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.back-to-home-link:hover {
+    color: var(--text-primary);
 }

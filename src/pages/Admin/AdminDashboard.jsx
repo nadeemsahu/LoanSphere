@@ -7,19 +7,8 @@ import '../../styles/dashboard.css';
 const AdminDashboard = () => {
     const { users, loans, transactions, activity } = useDataContext();
 
-    const recentTxColumns = [
-        { header: 'TxID', accessor: 'id' },
-        { header: 'Date', accessor: 'date' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Type', accessor: 'type' },
-        {
-            header: 'Borrower',
-            render: (row) => row.borrower
-                ? <span className="text-primary" style={{ fontWeight: 500 }}>{row.borrower}</span>
-                : <span className="text-secondary-xs">—</span>
-        },
-        { header: 'Status', render: (row) => <span className={`status-badge status-${(row.status || 'success').toLowerCase()}`}>{row.status || 'Success'}</span> },
-    ];
+    const activeLoans = loans.filter(l => l.status === 'Active');
+    const totalTransactions = transactions.length;
 
     const activityColumns = [
         { header: 'Action', accessor: 'action' },
@@ -27,10 +16,6 @@ const AdminDashboard = () => {
         { header: 'Details', accessor: 'details' },
         { header: 'Time', render: (row) => <span className="text-secondary-xs">{row.time}</span> },
     ];
-
-    const pendingLoans = loans.filter(l => l.status === 'Pending');
-    const activeLoans = loans.filter(l => l.status === 'Active');
-    const totalVolume = loans.reduce((acc, l) => acc + l.amount, 0);
 
     return (
         <div className="dashboard-container fade-in">
@@ -53,44 +38,35 @@ const AdminDashboard = () => {
                 <DashboardCard
                     title="Total Users"
                     value={users.length.toString()}
-                    trend={{ value: 'Active Platform', positive: true }}
+                    label="Registered accounts"
                     icon="👥"
+                />
+                <DashboardCard
+                    title="Total Loans"
+                    value={loans.length.toString()}
+                    label="All system loans"
+                    icon="📂"
                 />
                 <DashboardCard
                     title="Active Loans"
                     value={activeLoans.length.toString()}
-                    label="Performing assets"
+                    label="Currently performing"
                     icon="📊"
                 />
                 <DashboardCard
-                    title="Pending Review"
-                    value={pendingLoans.length.toString()}
-                    label="Awaiting action"
-                    icon="⏳"
-                />
-                <DashboardCard
-                    title="Total Volume"
-                    value={`$${(totalVolume / 1000).toLocaleString()}k`}
-                    label="Lifetime originated"
-                    icon="💎"
+                    title="Total Transactions"
+                    value={totalTransactions.toString()}
+                    label="Platform operations"
+                    icon="💰"
                 />
             </div>
 
-            <div className="content-grid-2-1">
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>Recent Transactions</h3>
-                        <span className="badge-count">{transactions.length}</span>
-                    </div>
-                    <Table columns={recentTxColumns} data={transactions.slice(0, 8)} plain />
+            <div className="content-section" style={{ marginTop: '24px' }}>
+                <div className="section-header">
+                    <h3>Recent System Activity</h3>
+                    <span className="badge-count">{activity.length}</span>
                 </div>
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>System Activity</h3>
-                        <span className="badge-count">{activity.length}</span>
-                    </div>
-                    <Table columns={activityColumns} data={activity.slice(0, 6)} plain />
-                </div>
+                <Table columns={activityColumns} data={activity.slice(0, 6)} plain />
             </div>
         </div>
     );

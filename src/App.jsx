@@ -16,6 +16,10 @@ const Homepage = lazy(() => import('./pages/Home/Homepage'));
 
 // Admin
 const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
+const UserManagement = lazy(() => import('./pages/Admin/UserManagement'));
+const LoanMonitoring = lazy(() => import('./pages/Admin/LoanMonitoring'));
+const TransactionMonitoring = lazy(() => import('./pages/Admin/TransactionMonitoring'));
+const SystemActivity = lazy(() => import('./pages/Admin/SystemActivity'));
 
 // Lender
 const LenderDashboard = lazy(() => import('./pages/Lender/LenderDashboard'));
@@ -98,10 +102,10 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     { index: true, element: <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense> },
-                    { path: 'users', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="User Management" type="users" /></Suspense> },
-                    { path: 'loans', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="All Loans" type="loans" /></Suspense> },
-                    { path: 'transactions', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="Transactions" type="transactions" /></Suspense> },
-                    { path: 'stats', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="System Activity" type="activity" /></Suspense> },
+                    { path: 'users', element: <Suspense fallback={<PageLoader />}><UserManagement /></Suspense> },
+                    { path: 'loans', element: <Suspense fallback={<PageLoader />}><LoanMonitoring /></Suspense> },
+                    { path: 'transactions', element: <Suspense fallback={<PageLoader />}><TransactionMonitoring /></Suspense> },
+                    { path: 'stats', element: <Suspense fallback={<PageLoader />}><SystemActivity /></Suspense> },
                     { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
                 ],
             },
