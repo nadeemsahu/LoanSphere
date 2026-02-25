@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Table from '../../components/Table/Table';
 import { useDataContext } from '../../contexts/DataContext';
@@ -6,12 +6,21 @@ import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/dashboard.css';
 
 const MyLoanOffers = () => {
-    const { offers } = useDataContext();
+    const { offers, deleteOffer } = useDataContext();
     const { user } = useAuth();
     const navigate = useNavigate();
     const lenderName = user?.name || 'Lender';
+    const [feedback, setFeedback] = useState('');
 
     const myOffers = offers.filter(o => o.lender === lenderName);
+
+    const handleDelete = (id) => {
+        if (window.confirm(`Remove offer #${id} from the marketplace? Borrowers will no longer be able to apply.`)) {
+            deleteOffer(id, lenderName);
+            setFeedback(`Offer #${id} removed from marketplace.`);
+            setTimeout(() => setFeedback(''), 3500);
+        }
+    };
 
     const columns = [
         { header: 'Offer ID', accessor: 'id' },
@@ -25,6 +34,14 @@ const MyLoanOffers = () => {
                 : <span className="text-secondary-xs">—</span>
         },
         { header: 'Status', render: () => <span className="status-badge status-active">Open for Apps</span> },
+        {
+            header: 'Action',
+            render: (row) => (
+                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(row.id)}>
+                    Remove
+                </button>
+            )
+        },
     ];
 
     return (
@@ -38,6 +55,12 @@ const MyLoanOffers = () => {
                     + Create Offer
                 </button>
             </div>
+
+            {feedback && (
+                <div role="alert" aria-live="polite" className="alert-warning">
+                    {feedback}
+                </div>
+            )}
 
             <div className="content-section" style={{ overflowX: 'auto' }}>
                 {myOffers.length === 0 ? (

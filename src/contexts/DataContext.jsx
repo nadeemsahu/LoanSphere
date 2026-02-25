@@ -149,6 +149,12 @@ export const DataProvider = ({ children }) => {
         addNotification(`New loan offer for $${newOffer.amount.toLocaleString()} published by ${lenderName || 'Lender'}`, 'success');
     }, [logActivity, addNotification]);
 
+    const deleteOffer = useCallback((id, lenderName) => {
+        setOffers(prev => prev.filter(o => o.id !== id));
+        logActivity('Offer Removed', lenderName || 'Lender', `Withdrew loan offer #${id} from marketplace`);
+        addNotification(`Loan offer #${id} removed from marketplace`, 'warning');
+    }, [logActivity, addNotification]);
+
     const applyForOffer = useCallback((id, borrowerName) => {
         const offer = offers.find(o => o.id === id);
         if (offer) {
@@ -198,14 +204,14 @@ export const DataProvider = ({ children }) => {
     const value = useMemo(() => ({
         users, addUser, blockUser, removeUser, editUserRole,
         loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
-        offers, createOffer, applyForOffer,
+        offers, createOffer, deleteOffer, applyForOffer,
         transactions, addPayment,
         activity, logActivity,
         notifications, markNotificationRead, clearNotifications
     }), [
         users, addUser, blockUser, removeUser, editUserRole,
         loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
-        offers, createOffer, applyForOffer,
+        offers, createOffer, deleteOffer, applyForOffer,
         transactions, addPayment,
         activity, logActivity,
         notifications, markNotificationRead, clearNotifications

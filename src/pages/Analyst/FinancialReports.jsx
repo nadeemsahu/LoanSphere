@@ -47,9 +47,9 @@ const FinancialReports = () => {
             </div>
 
             {reportReady && (
-                <div role="alert" aria-live="polite" className="fade-in" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.4)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', color: '#22c55e', fontSize: '0.9rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div role="alert" aria-live="polite" className="alert-success fade-in">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    Report generated successfully! financial-summary-Q4.pdf has been saved.
+                    Report compiled successfully! financial-summary.pdf has been saved.
                 </div>
             )}
 
@@ -72,20 +72,20 @@ const FinancialReports = () => {
                         <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>${totalRepaid.toLocaleString()}</span>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'rgba(34,197,94,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--success-color, #22c55e)' }}>
-                        <span style={{ fontSize: '1rem', color: 'var(--success-color, #22c55e)', fontWeight: 500 }}>Interest Earned (Gross)</span>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--success-color, #22c55e)' }}>+${Math.round(interestEarned).toLocaleString()}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'var(--success-bg)', borderRadius: '8px', borderLeft: '4px solid #22c55e' }}>
+                        <span style={{ fontSize: '1rem', color: 'var(--success-text)', fontWeight: 500 }}>Interest Earned (Gross)</span>
+                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--success-text)' }}>+${Math.round(interestEarned).toLocaleString()}</span>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'rgba(239,68,68,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--danger-color, #ef4444)' }}>
-                        <span style={{ fontSize: '1rem', color: 'var(--danger-color, #ef4444)', fontWeight: 500 }}>Default Losses (Write-offs)</span>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--danger-color, #ef4444)' }}>-${defaultLosses.toLocaleString()}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'var(--danger-bg)', borderRadius: '8px', borderLeft: '4px solid #ef4444' }}>
+                        <span style={{ fontSize: '1rem', color: 'var(--danger-text)', fontWeight: 500 }}>Default Losses (Write-offs)</span>
+                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--danger-text)' }}>-${defaultLosses.toLocaleString()}</span>
                     </div>
 
-                    <div style={{ marginTop: '16px', borderTop: '2px dashed var(--border)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '1.125rem', fontWeight: 700 }}>Net Platform Health</span>
-                        <span style={{ fontSize: '1.5rem', fontWeight: 700, color: interestEarned >= defaultLosses ? 'var(--success-color, #22c55e)' : 'var(--danger-color, #ef4444)' }}>
-                            {interestEarned >= defaultLosses ? 'Positive' : 'Negative'}
+                    <div style={{ marginTop: '16px', borderTop: '2px dashed var(--border-medium)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>Net Platform Health</span>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 700, color: interestEarned >= defaultLosses ? 'var(--success-text)' : 'var(--danger-text)' }}>
+                            {interestEarned >= defaultLosses ? 'Positive ✓' : 'Negative ✗'}
                         </span>
                     </div>
                 </div>

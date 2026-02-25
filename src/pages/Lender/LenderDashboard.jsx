@@ -19,8 +19,9 @@ const LenderDashboard = () => {
     // Derived states
     const activeLoansCount = myLoans.filter(l => l.status === 'Active').length;
 
-    // Borrower applications are pending loans linked to this lender's offers
-    const pendingApplications = loans.filter(l => l.status === 'Pending' && l.approvedBy === lenderName);
+    // All pending loans in the system (any lender can review and approve/reject)
+    // This is consistent with the BorrowerApplications page which also shows all pending
+    const pendingApplications = loans.filter(l => l.status === 'Pending');
     const pendingCount = pendingApplications.length;
 
     // Payments specific to this lender (my borrowers paying my loans)
