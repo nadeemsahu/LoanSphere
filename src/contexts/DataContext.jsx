@@ -162,7 +162,7 @@ export const DataProvider = ({ children }) => {
                 id: Date.now(),
                 borrower: borrowerName || 'Borrower',
                 amount: offer.amount,
-                purpose: 'Applied from Loan Offer',
+                purpose: offer.description || 'Applied from Loan Offer',
                 status: 'Pending',
                 interestRate: offer.interestRate,
                 term: offer.term,
@@ -185,18 +185,23 @@ export const DataProvider = ({ children }) => {
 
     // --- Transactions & Payments ---
     const addPayment = (amount, borrowerName, loanId) => {
+        const floatAmount = parseFloat(amount);
         const newPayment = {
             id: `TXN${Date.now().toString().slice(-6)}`,
             date: new Date().toISOString().split('T')[0],
-            amount: parseFloat(amount),
+            amount: floatAmount,
             type: 'Payment',
             status: 'Success',
             borrower: borrowerName || 'Borrower',
             loanId: loanId || null
         };
         setTransactions(prev => [newPayment, ...prev]);
-        logActivity('Payment Received', 'System', `Received $${parseFloat(amount).toLocaleString()} from ${borrowerName || 'Borrower'}`);
-        addNotification(`Payment of $${parseFloat(amount).toLocaleString()} received from ${borrowerName || 'Borrower'}`, 'success');
+        logActivity('Payment Received', borrowerName || 'Borrower', `Paid $${floatAmount.toLocaleString()} towards loan ${loanId ? '#' + loanId : 'balance'}`);
+        addNotification(`Payment of $${floatAmount.toLocaleString()} successful`, 'success');
+
+        // Optional: Auto-close loan if balance hits 0 (Simulated by checking current active payments)
+        // In a real app we'd directly update the `loans` state to deduct balance, but since UI calculates remaining dynamically,
+        // just logging it here is fine for the mock.
     };
 
     return (

@@ -25,15 +25,16 @@ const Sidebar = ({ isOpen, onClose }) => {
         ],
         borrower: [
             { label: 'Dashboard', path: '/borrower', icon: 'grid' },
-            { label: 'Browse Offers', path: '/borrower/offers', icon: 'file-text' },
-            { label: 'Apply for Loan', path: '/borrower/apply', icon: 'plus-circle' },
+            { label: 'Browse Loan Offers', path: '/borrower/offers', icon: 'file-text' },
+            { label: 'My Applications', path: '/borrower/applications', icon: 'file' },
             { label: 'My Loans', path: '/borrower/loans', icon: 'briefcase' },
-            { label: 'Payments & EMI', path: '/borrower/payments', icon: 'dollar-sign' },
+            { label: 'Payments', path: '/borrower/payments', icon: 'dollar-sign' },
         ],
         analyst: [
             { label: 'Dashboard', path: '/analyst', icon: 'grid' },
-            { label: 'Analytics', path: '/analyst/analytics', icon: 'bar-chart-2' },
-            { label: 'Risk Reports', path: '/analyst/risk', icon: 'alert-triangle' },
+            { label: 'Loan Analytics', path: '/analyst/analytics', icon: 'bar-chart-2' },
+            { label: 'Risk Analysis', path: '/analyst/risk', icon: 'alert-triangle' },
+            { label: 'Financial Reports', path: '/analyst/reports', icon: 'file' },
             { label: 'Transactions', path: '/analyst/transactions', icon: 'dollar-sign' },
         ],
     };

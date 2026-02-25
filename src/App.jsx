@@ -31,15 +31,17 @@ const PaymentTracking = lazy(() => import('./pages/Lender/PaymentTracking'));
 
 // Borrower
 const BorrowerDashboard = lazy(() => import('./pages/Borrower/BorrowerDashboard'));
-const ApplyLoan = lazy(() => import('./pages/Borrower/ApplyLoan'));
+const BrowseOffers = lazy(() => import('./pages/Borrower/BrowseOffers'));
+const MyApplications = lazy(() => import('./pages/Borrower/MyApplications'));
 const MyLoans = lazy(() => import('./pages/Borrower/MyLoans'));
 const Payments = lazy(() => import('./pages/Borrower/Payments'));
-const BrowseOffers = lazy(() => import('./pages/Borrower/BrowseOffers'));
 
 // Analyst
 const AnalystDashboard = lazy(() => import('./pages/Analyst/AnalystDashboard'));
-const AnalyticsPage = lazy(() => import('./pages/Analyst/AnalyticsPage'));
-const RiskReports = lazy(() => import('./pages/Analyst/RiskReports'));
+const LoanAnalytics = lazy(() => import('./pages/Analyst/LoanAnalytics'));
+const RiskAnalysis = lazy(() => import('./pages/Analyst/RiskAnalysis'));
+const FinancialReports = lazy(() => import('./pages/Analyst/FinancialReports'));
+const Transactions = lazy(() => import('./pages/Analyst/Transactions'));
 
 // Shared
 const PlaceholderPage = lazy(() => import('./components/PlaceholderPage'));
@@ -140,7 +142,7 @@ const router = createBrowserRouter([
                 children: [
                     { index: true, element: <Suspense fallback={<PageLoader />}><BorrowerDashboard /></Suspense> },
                     { path: 'offers', element: <Suspense fallback={<PageLoader />}><BrowseOffers /></Suspense> },
-                    { path: 'apply', element: <Suspense fallback={<PageLoader />}><ApplyLoan /></Suspense> },
+                    { path: 'applications', element: <Suspense fallback={<PageLoader />}><MyApplications /></Suspense> },
                     { path: 'loans', element: <Suspense fallback={<PageLoader />}><MyLoans /></Suspense> },
                     { path: 'payments', element: <Suspense fallback={<PageLoader />}><Payments /></Suspense> },
                     { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
@@ -155,9 +157,10 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     { index: true, element: <Suspense fallback={<PageLoader />}><AnalystDashboard /></Suspense> },
-                    { path: 'analytics', element: <Suspense fallback={<PageLoader />}><AnalyticsPage /></Suspense> },
-                    { path: 'risk', element: <Suspense fallback={<PageLoader />}><RiskReports /></Suspense> },
-                    { path: 'transactions', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="Transactions" type="transactions" /></Suspense> },
+                    { path: 'analytics', element: <Suspense fallback={<PageLoader />}><LoanAnalytics /></Suspense> },
+                    { path: 'risk', element: <Suspense fallback={<PageLoader />}><RiskAnalysis /></Suspense> },
+                    { path: 'reports', element: <Suspense fallback={<PageLoader />}><FinancialReports /></Suspense> },
+                    { path: 'transactions', element: <Suspense fallback={<PageLoader />}><Transactions /></Suspense> },
                     { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
                 ],
             },

@@ -1,111 +1,100 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardCard from '../../components/DashboardCard/DashboardCard';
-import Table from '../../components/Table/Table';
-import Button from '../../components/Button/Button';
-import StatusTracker from '../../components/StatusTracker/StatusTracker';
 import { useDataContext } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/dashboard.css';
 
 const BorrowerDashboard = () => {
     const { user } = useAuth();
-    const borrowerName = user?.name;
-    const { loans, transactions } = useDataContext();
+    const borrowerName = user?.name || 'Borrower';
+    const { loans, transactions, activity } = useDataContext();
     const navigate = useNavigate();
 
-    // PS15: Borrower sees ONLY their own loans and payments
+    // Data filtering restricted just to this borrower
     const myLoans = loans.filter(l => l.borrower === borrowerName);
     const myPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName);
+
     const activeLoans = myLoans.filter(l => l.status === 'Active');
     const pendingLoans = myLoans.filter(l => l.status === 'Pending');
-    const totalBorrowed = myLoans.reduce((acc, l) => acc + l.amount, 0);
-    const totalPaid = myPayments.reduce((acc, t) => acc + t.amount, 0);
 
-    // Show the most recent active loan's status tracker
-    const trackerLoan = activeLoans[0] || myLoans[0];
+    const totalBorrowed = activeLoans.reduce((acc, l) => acc + parseFloat(l.amount), 0);
+    const totalPaid = myPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
+    const overallRemainingBalance = Math.max(0, totalBorrowed - totalPaid);
 
-    const loanColumns = [
-        { header: 'Loan ID', accessor: 'id' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Purpose', render: (row) => row.purpose || '—' },
-        { header: 'Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Term', render: (row) => `${row.term} months` },
-        { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
-    ];
+    const upcomingEmi = activeLoans.reduce((acc, l) => acc + parseFloat(l.nextPaymentAmount || 0), 0);
 
-    const txColumns = [
-        { header: 'TxID', accessor: 'id' },
-        { header: 'Date', accessor: 'date' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Status', render: () => <span className="status-badge status-success">Success</span> },
-    ];
+    // Borrower specific activity logs
+    const borrowerActivity = activity.filter(a => a.user === borrowerName || a.details.includes(borrowerName));
+
+    const getActionIcon = (action) => {
+        const act = action.toLowerCase();
+        if (act.includes('loan') || act.includes('application')) return '📋';
+        if (act.includes('approve')) return '✅';
+        if (act.includes('payment')) return '💳';
+        return '⚡';
+    };
 
     return (
         <div className="dashboard-container fade-in">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">My Dashboard</h1>
-                    <p className="page-subtitle">Welcome, {borrowerName}. Track your loans and payments.</p>
+                    <h1 className="page-title">Borrower Dashboard</h1>
+                    <p className="page-subtitle">Track your active loans, upcoming EMIs, and applications.</p>
                 </div>
                 <div className="header-actions">
-                    <Button variant="outline" onClick={() => navigate('/borrower/offers')}>Browse Offers</Button>
-                    <Button variant="primary" onClick={() => navigate('/borrower/apply')}>Apply for Loan</Button>
+                    <button className="btn btn-outline btn-sm" onClick={() => navigate('/borrower/offers')}>
+                        Browse Loan Offers
+                    </button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/borrower/payments')}>
+                        Pay Upcoming EMI
+                    </button>
                 </div>
             </div>
 
             <div className="dashboard-grid">
-                <DashboardCard title="Total Borrowed" value={`$${totalBorrowed.toLocaleString()}`} label="Across my loans" icon="💳" />
-                <DashboardCard title="Active Loans" value={activeLoans.length.toString()} label="Currently running" icon="📄" />
-                <DashboardCard title="Pending Applications" value={pendingLoans.length.toString()} label="Under review" icon="⏳" />
-                <DashboardCard title="Total Paid" value={`$${totalPaid.toLocaleString()}`} trend={{ value: 'On time', positive: true }} icon="✅" />
+                <DashboardCard title="Active Loans" value={activeLoans.length.toString()} label="Currently servicing" icon="💼" />
+                <DashboardCard title="Pending Apps" value={pendingLoans.length.toString()} label="Awaiting review" icon="⏳" />
+                <DashboardCard title="Total Borrowed" value={`$${totalBorrowed.toLocaleString()}`} label="Principal amount" icon="💵" />
+                <DashboardCard title="Remaining Balance" value={`$${overallRemainingBalance.toLocaleString()}`} label="Left to pay" icon="📉" />
+                <DashboardCard title="Upcoming EMI" value={`$${upcomingEmi.toLocaleString()}`} label="Due next cycle" icon="📅" trend={{ value: 'Due soon', positive: false }} />
             </div>
 
-            {trackerLoan && trackerLoan.stages && trackerLoan.stages.length > 0 && (
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>Loan Status Tracker — #{trackerLoan.id}</h3>
-                        <span className={`status-badge status-${trackerLoan.status.toLowerCase()}`}>{trackerLoan.status}</span>
-                    </div>
-                    <StatusTracker stages={trackerLoan.stages} />
+            <div className="content-section" style={{ marginTop: '24px', padding: '24px' }}>
+                <div className="section-header" style={{ marginBottom: '24px' }}>
+                    <h3>Recent Activity</h3>
+                    <span className="badge-count">{borrowerActivity.length}</span>
                 </div>
-            )}
 
-            <div className="content-grid-2-1">
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>My Loans</h3>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/borrower/loans')}
-                        >
-                            View All
-                        </Button>
+                {borrowerActivity.length === 0 ? (
+                    <div className="no-data">No recent activity on your account.</div>
+                ) : (
+                    <div style={{ position: 'relative', borderLeft: '2px solid var(--border-medium)', marginLeft: '16px', paddingLeft: '24px' }}>
+                        {borrowerActivity.slice(0, 8).map((log, index) => (
+                            <div key={index} style={{ marginBottom: '20px', position: 'relative' }}>
+                                <div style={{
+                                    position: 'absolute', left: '-37px', top: '0', width: '24px', height: '24px',
+                                    borderRadius: '50%', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-medium)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
+                                }}>
+                                    {getActionIcon(log.action)}
+                                </div>
+                                <div style={{
+                                    backgroundColor: 'var(--bg-secondary)', padding: '16px',
+                                    borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{log.time}</span>
+                                    </div>
+                                    <p style={{ margin: '0 0 0 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                        {log.details.replace(borrowerName, 'You')}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    {myLoans.length === 0 ? (
-                        <div className="no-data">No loans yet. Apply for one!</div>
-                    ) : (
-                        <Table columns={loanColumns} data={myLoans} pagination={false} />
-                    )}
-                </div>
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>Recent Payments</h3>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/borrower/payments')}
-                        >
-                            View All
-                        </Button>
-                    </div>
-                    {myPayments.length === 0 ? (
-                        <div className="no-data">No payments recorded yet.</div>
-                    ) : (
-                        <Table columns={txColumns} data={myPayments.slice(0, 5)} pagination={false} />
-                    )}
-                </div>
+                )}
             </div>
         </div>
     );

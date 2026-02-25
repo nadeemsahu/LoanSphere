@@ -7,21 +7,41 @@ import '../../styles/dashboard.css';
 
 const MyLoans = () => {
     const { user } = useAuth();
-    const borrowerName = user?.name;
-    const { loans } = useDataContext();
+    const borrowerName = user?.name || 'Borrower';
+    const { loans, transactions } = useDataContext();
 
-    // PS15: show only this borrower's own loans
+    // Isolate loans just to this borrower
     const myLoans = loans.filter(l => l.borrower === borrowerName);
-    const activeLoan = myLoans.find(l => l.status === 'Active') || myLoans[0];
 
-    const loanColumns = [
+    // Specifically show active or completed loans here
+    const activeAndClosed = myLoans.filter(l => l.status === 'Active' || l.status === 'Closed' || l.status === 'Defaulted');
+
+    // Create an enriched array with dynamic remaining balance calculations
+    const enrichedLoans = activeAndClosed.map(loan => {
+        // Find all payments made to this specific loan
+        const loanPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName && t.loanId === loan.id);
+        const amountPaid = loanPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+        const originalAmount = parseFloat(loan.amount);
+        const remainingBalance = Math.max(0, originalAmount - amountPaid);
+
+        const isClosed = remainingBalance === 0 && loan.status === 'Active'; // Pseudo determination
+
+        return {
+            ...loan,
+            remainingBalance,
+            displayStatus: isClosed ? 'Closed' : loan.status,
+            amountPaid
+        };
+    });
+
+    const columns = [
         { header: 'Loan ID', accessor: 'id' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Purpose', render: (row) => row.purpose || '—' },
-        { header: 'Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Term', render: (row) => `${row.term} months` },
-        { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
-        { header: 'Applied On', accessor: 'startDate' },
+        { header: 'Lender', accessor: 'approvedBy' },
+        { header: 'Principal', render: (row) => `$${row.amount.toLocaleString()}` },
+        { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
+        { header: 'Remaining Balance', render: (row) => row.remainingBalance > 0 ? <span className="text-primary" style={{ fontWeight: 600 }}>${row.remainingBalance.toLocaleString()}</span> : <span className="text-secondary-xs">Paid Off</span> },
+        { header: 'Status', render: (row) => <span className={`status-badge status-${row.displayStatus.toLowerCase()}`}>{row.displayStatus}</span> },
     ];
 
     return (
@@ -29,32 +49,35 @@ const MyLoans = () => {
             <div className="page-header">
                 <div>
                     <h1 className="page-title">My Loans</h1>
-                    <p className="page-subtitle">Track your loan applications and repayment status</p>
+                    <p className="page-subtitle">Manage and track your active debt portions.</p>
                 </div>
             </div>
 
-            {activeLoan && activeLoan.stages && activeLoan.stages.length > 0 && (
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>Application Tracker — Loan #{activeLoan.id}</h3>
-                        <span className={`status-badge status-${activeLoan.status.toLowerCase()}`}>{activeLoan.status}</span>
-                    </div>
-                    <StatusTracker stages={activeLoan.stages} />
-                </div>
-            )}
-
-            <div className="content-section">
+            <div className="content-section" style={{ overflowX: 'auto', marginBottom: '24px' }}>
                 <div className="section-header">
-                    <h3>All My Loans ({myLoans.length})</h3>
+                    <h3>Active & History</h3>
                 </div>
-                {myLoans.length === 0 ? (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        You have no loans yet. Apply for a loan or browse available offers.
-                    </div>
+                {enrichedLoans.length === 0 ? (
+                    <div className="no-data">You have no active or completed loans at this time.</div>
                 ) : (
-                    <Table columns={loanColumns} data={myLoans} />
+                    <Table columns={columns} data={enrichedLoans} />
                 )}
             </div>
+
+            {enrichedLoans.map(loan => (
+                <div key={loan.id} className="content-section" style={{ marginBottom: '24px' }}>
+                    <div className="section-header">
+                        <h3>Status Tracker — #{loan.id}</h3>
+                        <span className={`status-badge status-${loan.displayStatus.toLowerCase()}`}>{loan.displayStatus}</span>
+                    </div>
+                    {/* Render status stages provided from Context processing */}
+                    {loan.stages && loan.stages.length > 0 ? (
+                        <StatusTracker stages={loan.stages} />
+                    ) : (
+                        <p className="text-secondary-xs" style={{ padding: '0 24px 24px' }}>No tracking stages available for this older loan.</p>
+                    )}
+                </div>
+            ))}
         </div>
     );
 };
