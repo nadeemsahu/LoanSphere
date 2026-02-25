@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './Register.css';
 
 const Register = () => {
@@ -11,6 +12,7 @@ const Register = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { theme, toggleTheme } = useTheme();
 
     const handleChange = (e) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -66,7 +68,18 @@ const Register = () => {
                             <span className="register-logo-icon">▲</span>
                             <span className="register-logo-text">LoanSphere</span>
                         </Link>
-                        <Link to="/home" className="register-home-link">← Home</Link>
+                        <div className="register-top-actions">
+                            <button
+                                type="button"
+                                onClick={toggleTheme}
+                                className="auth-theme-toggle"
+                                aria-label="Toggle theme"
+                                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                            >
+                                {theme === 'dark' ? '☀️' : '🌙'}
+                            </button>
+                            <Link to="/home" className="register-home-link">← Home</Link>
+                        </div>
                     </div>
                     <h1 className="register-title">Create an account</h1>
                     <p className="register-subtitle">Join as a borrower or lender — free to start.</p>

@@ -107,3 +107,33 @@
     font-size: 0.75rem;
     color: var(--text-tertiary);
 }
+
+/* ─── Theme toggle button (used on Login + Register) ─── */
+.login-form-container {
+    position: relative;
+}
+
+.auth-theme-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-light);
+    background-color: var(--bg-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    padding: 0;
+    line-height: 1;
+}
+
+.auth-theme-toggle:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--border-medium);
+    transform: scale(1.08);
+}

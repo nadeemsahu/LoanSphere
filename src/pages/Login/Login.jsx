@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './Login.css';
 
 const Login = () => {
@@ -8,6 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -69,6 +71,15 @@ const Login = () => {
 
     return (
         <div className="login-form-container">
+            <button
+                type="button"
+                onClick={toggleTheme}
+                className="auth-theme-toggle"
+                aria-label="Toggle theme"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+                {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
             <h2 className="login-title">Welcome Back</h2>
             <p className="login-subtitle">Enter your credentials to access your account</p>
 

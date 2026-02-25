@@ -88,6 +88,36 @@
     margin-bottom: 20px;
 }
 
+/* Groups the theme toggle + home link together on the right */
+.register-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth-theme-toggle {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-light);
+    background-color: var(--bg-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.auth-theme-toggle:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--border-medium);
+    transform: scale(1.08);
+}
+
 .register-logo {
     display: flex;
     align-items: center;
