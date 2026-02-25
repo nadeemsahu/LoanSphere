@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -10,7 +10,6 @@ const getBreadcrumb = (pathname) => {
     const segments = pathname.replace(/^\//, '').split('/');
     const last = segments[segments.length - 1];
 
-    // Custom mapping for clearer navigation
     const labels = {
         'admin': 'Dashboard',
         'lender': 'Overview',
@@ -30,28 +29,41 @@ const getBreadcrumb = (pathname) => {
         .replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-const Navbar = ({ onToggleMenu }) => {
+const Navbar = memo(({ onToggleMenu }) => {
     const { user, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
-    const breadcrumb = getBreadcrumb(location.pathname);
+    // Memoize computed values to avoid recalculation on every render
+    const breadcrumb = useMemo(() => getBreadcrumb(location.pathname), [location.pathname]);
 
-    // Dynamic breadcrumb prefix based on role
-    const getPrefix = () => {
+    const prefix = useMemo(() => {
         if (user?.role === 'admin') return 'Administration';
         if (user?.role === 'analyst') return 'Financials';
         if (user?.role === 'borrower') return 'Borrower';
         return 'Lending';
-    };
+    }, [user?.role]);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         setIsDropdownOpen(false);
         logout();
         navigate('/login', { replace: true });
-    };
+    }, [logout, navigate]);
+
+    const openSettings = useCallback(() => {
+        setIsDropdownOpen(false);
+        navigate(`/${user?.role}/settings`);
+    }, [navigate, user?.role]);
+
+    const toggleDropdown = useCallback(() => {
+        setIsDropdownOpen(prev => !prev);
+    }, []);
+
+    const closeDropdown = useCallback(() => {
+        setIsDropdownOpen(false);
+    }, []);
 
     return (
         <header className="navbar" role="banner">
@@ -78,7 +90,7 @@ const Navbar = ({ onToggleMenu }) => {
                     </button>
 
                     <nav className="breadcrumb" aria-label="Breadcrumb">
-                        <span className="breadcrumb-item">{getPrefix()}</span>
+                        <span className="breadcrumb-item">{prefix}</span>
                         <span className="breadcrumb-separator">/</span>
                         <span className="breadcrumb-current">{breadcrumb}</span>
                     </nav>
@@ -108,7 +120,7 @@ const Navbar = ({ onToggleMenu }) => {
                     <div className="profile-dropdown-container">
                         <button
                             className="profile-btn"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            onClick={toggleDropdown}
                             aria-haspopup="true"
                             aria-expanded={isDropdownOpen}
                         >
@@ -128,32 +140,36 @@ const Navbar = ({ onToggleMenu }) => {
                             </svg>
                         </button>
 
-                        {isDropdownOpen && (
-                            <>
-                                <div className="dropdown-overlay-mask" onClick={() => setIsDropdownOpen(false)} />
-                                <div className="profile-menu">
-                                    <div className="menu-header">
-                                        <div className="menu-identity">
-                                            <span className="menu-name">{user?.name}</span>
-                                            <span className="menu-role-badge">{user?.role}</span>
-                                        </div>
-                                        <span className="menu-email">{user?.email}</span>
-                                    </div>
-                                    <div className="menu-divider" />
-                                    <button className="menu-item" onClick={() => { setIsDropdownOpen(false); navigate(`/${user?.role}/settings`); }}>
-                                        Settings
-                                    </button>
-                                    <button className="menu-item text-danger" onClick={handleLogout}>
-                                        Logout
-                                    </button>
+                        {/* CSS-based visibility — always mounted, shown/hidden via classes to avoid mount/unmount flash */}
+                        <div
+                            className={`dropdown-overlay-mask ${isDropdownOpen ? '' : 'dropdown-hidden'}`}
+                            onClick={closeDropdown}
+                        />
+                        <div className={`profile-menu ${isDropdownOpen ? 'dropdown-visible' : 'dropdown-collapsed'}`}
+                            aria-hidden={!isDropdownOpen}
+                        >
+                            <div className="menu-header">
+                                <div className="menu-identity">
+                                    <span className="menu-name">{user?.name}</span>
+                                    <span className="menu-role-badge">{user?.role}</span>
                                 </div>
-                            </>
-                        )}
+                                <span className="menu-email">{user?.email}</span>
+                            </div>
+                            <div className="menu-divider" />
+                            <button className="menu-item" onClick={openSettings}>
+                                Settings
+                            </button>
+                            <button className="menu-item text-danger" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
     );
-};
+});
+
+Navbar.displayName = 'Navbar';
 
 export default Navbar;

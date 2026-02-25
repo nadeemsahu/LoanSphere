@@ -52,7 +52,22 @@
     box-shadow: var(--shadow-lg);
     z-index: 1000;
     overflow: hidden;
-    animation: slideDown 0.2s ease-out forwards;
+    /* Transition handled by .dropdown-collapsed/.dropdown-visible */
+}
+
+/* CSS-based show/hide — prevents mount/unmount flash */
+.dropdown-collapsed {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.dropdown-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 
 .notification-header {
@@ -154,14 +169,4 @@
     background-color: var(--warning-text);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+/* Removed slideDown — transition is now handled by .dropdown-visible/.dropdown-collapsed */

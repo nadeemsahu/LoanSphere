@@ -118,19 +118,22 @@ p:last-child {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(4px);
-        /* Smoother, tighter motion */
     }
-
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
+/* Applied to the inner page-content wrapper keyed by route — opacity only, no layout shift */
+.page-fade-in {
+    animation: fadeIn 0.2s ease forwards;
+    will-change: opacity;
+}
+
+/* Legacy class kept for any existing usage */
 .fade-in {
-    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    /* Polished ease */
+    animation: fadeIn 0.2s ease forwards;
+    will-change: opacity;
 }
 
 .delay-1 {

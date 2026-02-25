@@ -148,6 +148,25 @@
     cursor: default;
 }
 
+.dropdown-hidden {
+    display: none;
+}
+
+/* CSS-based dropdown visibility — always mounted, toggled by class to prevent mount flash */
+.dropdown-collapsed {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.dropdown-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
 .profile-menu {
     position: absolute;
     top: 100%;
@@ -159,8 +178,8 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     z-index: 51;
-    animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     padding: var(--space-sm);
+    /* Transition handled by .dropdown-collapsed/.dropdown-visible */
 }
 
 .menu-header {
@@ -233,15 +252,14 @@
     background-color: var(--danger-bg);
 }
 
+/* Local keyframe: opacity-only, no translateY layout shift */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 

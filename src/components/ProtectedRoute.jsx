@@ -13,20 +13,22 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100vh',
-                background: 'var(--bg-color, #0a0a0a)',
-                color: 'var(--text-secondary, #a1a1aa)',
+                // Use CSS variables so this respects the current theme and never produces a wrong-color flash
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-secondary)',
                 fontSize: '0.875rem',
                 letterSpacing: '0.05em',
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <div style={{
-                        width: '32px',
-                        height: '32px',
-                        border: '2px solid var(--border, #27272a)',
-                        borderTopColor: 'var(--text-primary, #fff)',
+                        width: '28px',
+                        height: '28px',
+                        border: '2px solid var(--border-light)',
+                        borderTopColor: 'var(--brand-primary)',
                         borderRadius: '50%',
-                        animation: 'spin 0.8s linear infinite',
-                        margin: '0 auto 1rem',
+                        animation: 'spin 0.7s linear infinite',
+                        margin: '0 auto 0.75rem',
+                        opacity: 0.8,
                     }} />
                     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                     LoanSphere

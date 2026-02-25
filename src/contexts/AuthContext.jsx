@@ -10,7 +10,11 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch {
+                localStorage.removeItem('user');
+            }
         }
         setLoading(false);
     }, []);
@@ -18,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     const login = (email, password) => {
         const foundUser = users.find(u => u.email === email && u.password === password);
         if (foundUser) {
-            const { password, ...userWithoutPassword } = foundUser;
+            const { password: _pw, ...userWithoutPassword } = foundUser;
             setUser(userWithoutPassword);
             localStorage.setItem('user', JSON.stringify(userWithoutPassword));
             return { success: true, user: userWithoutPassword };
@@ -31,12 +35,13 @@ export const AuthProvider = ({ children }) => {
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
 
-        // Also update in the users list in localStorage if it exists (for DataContext consistency)
         const storedUsers = localStorage.getItem('fsad_users');
         if (storedUsers) {
-            const allUsers = JSON.parse(storedUsers);
-            const updatedAllUsers = allUsers.map(u => u.id === updatedUser.id ? { ...u, ...data } : u);
-            localStorage.setItem('fsad_users', JSON.stringify(updatedAllUsers));
+            try {
+                const allUsers = JSON.parse(storedUsers);
+                const updatedAllUsers = allUsers.map(u => u.id === updatedUser.id ? { ...u, ...data } : u);
+                localStorage.setItem('fsad_users', JSON.stringify(updatedAllUsers));
+            } catch { /* ignore */ }
         }
     };
 
@@ -47,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };

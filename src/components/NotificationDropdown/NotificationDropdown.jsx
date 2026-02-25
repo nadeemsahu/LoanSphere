@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useDataContext } from '../../contexts/DataContext';
 import './NotificationDropdown.css';
 
-const NotificationDropdown = () => {
+const NotificationDropdown = memo(() => {
     const { notifications, markNotificationRead, clearNotifications } = useDataContext();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -10,6 +10,7 @@ const NotificationDropdown = () => {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     useEffect(() => {
+        if (!isOpen) return;
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsOpen(false);
@@ -17,9 +18,9 @@ const NotificationDropdown = () => {
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [isOpen]);
 
-    const toggleDropdown = () => setIsOpen(!isOpen);
+    const toggleDropdown = useCallback(() => setIsOpen(prev => !prev), []);
 
     return (
         <div className="notification-wrapper" ref={dropdownRef}>
@@ -27,6 +28,8 @@ const NotificationDropdown = () => {
                 className="notification-trigger"
                 onClick={toggleDropdown}
                 aria-label="Notifications"
+                aria-expanded={isOpen}
+                aria-haspopup="true"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -37,40 +40,44 @@ const NotificationDropdown = () => {
                 )}
             </button>
 
-            {isOpen && (
-                <div className="notification-dropdown">
-                    <div className="notification-header">
-                        <h3>Notifications</h3>
-                        {notifications.length > 0 && (
-                            <button className="clear-all-btn" onClick={clearNotifications}>
-                                Clear All
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="notification-list">
-                        {notifications.length === 0 ? (
-                            <div className="empty-notifications">No new notifications</div>
-                        ) : (
-                            notifications.map(notif => (
-                                <div
-                                    key={notif.id}
-                                    className={`notification-item ${!notif.read ? 'unread' : ''} ${notif.type}`}
-                                    onClick={() => markNotificationRead(notif.id)}
-                                >
-                                    <div className="notif-content">
-                                        <p>{notif.message}</p>
-                                        <span className="notif-time">{notif.time}</span>
-                                    </div>
-                                    {!notif.read && <div className="unread-dot"></div>}
-                                </div>
-                            ))
-                        )}
-                    </div>
+            {/* CSS-based visibility — always mounted, shown/hidden via class to avoid mount/unmount flash */}
+            <div
+                className={`notification-dropdown ${isOpen ? 'dropdown-visible' : 'dropdown-collapsed'}`}
+                aria-hidden={!isOpen}
+            >
+                <div className="notification-header">
+                    <h3>Notifications</h3>
+                    {notifications.length > 0 && (
+                        <button className="clear-all-btn" onClick={clearNotifications}>
+                            Clear All
+                        </button>
+                    )}
                 </div>
-            )}
+
+                <div className="notification-list">
+                    {notifications.length === 0 ? (
+                        <div className="empty-notifications">No new notifications</div>
+                    ) : (
+                        notifications.map(notif => (
+                            <div
+                                key={notif.id}
+                                className={`notification-item ${!notif.read ? 'unread' : ''} ${notif.type}`}
+                                onClick={() => markNotificationRead(notif.id)}
+                            >
+                                <div className="notif-content">
+                                    <p>{notif.message}</p>
+                                    <span className="notif-time">{notif.time}</span>
+                                </div>
+                                {!notif.read && <div className="unread-dot"></div>}
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
         </div>
     );
-};
+});
+
+NotificationDropdown.displayName = 'NotificationDropdown';
 
 export default NotificationDropdown;

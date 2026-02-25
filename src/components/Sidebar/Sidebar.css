@@ -9,7 +9,9 @@
     display: flex;
     flex-direction: column;
     z-index: 50;
-    transition: transform var(--transition-normal), width var(--transition-normal);
+    /* Only transition transform — width is fixed on desktop, animating it causes layout reflow */
+    transition: transform var(--transition-normal);
+    will-change: transform;
     overflow-y: auto;
 }
 

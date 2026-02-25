@@ -13,6 +13,7 @@
     height: 100vh;
     margin-left: var(--sidebar-width);
     overflow-y: auto;
+    overflow-anchor: none;
 }
 
 .page-content {
@@ -21,6 +22,7 @@
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
+    min-height: calc(100vh - var(--navbar-height));
 }
 
 /* Sidebar Overlay */

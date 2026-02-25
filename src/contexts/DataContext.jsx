@@ -1,88 +1,83 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { users as initialUsers, loans as initialLoans, loanOffers as initialOffers, transactions as initialTransactions, activityLogs as initialLogs } from '../data/mockData';
 
 const DataContext = createContext(null);
 
-// Helper to get a readable time string
 const getTimeLabel = () => {
     return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
-export const DataProvider = ({ children }) => {
-    const [users, setUsers] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_users')) || initialUsers; } catch { return initialUsers; }
-    });
-    const [loans, setLoans] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_loans')) || initialLoans; } catch { return initialLoans; }
-    });
-    const [offers, setOffers] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_offers')) || initialOffers; } catch { return initialOffers; }
-    });
-    const [transactions, setTransactions] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_transactions')) || initialTransactions; } catch { return initialTransactions; }
-    });
-    const [activity, setActivity] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_activity')) || initialLogs; } catch { return initialLogs; }
-    });
-    const [notifications, setNotifications] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('fsad_notifications')) || []; } catch { return []; }
-    });
+const safeParse = (key, fallback) => {
+    try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : fallback;
+    } catch {
+        return fallback;
+    }
+};
 
-    useEffect(() => {
-        localStorage.setItem('fsad_users', JSON.stringify(users));
-        localStorage.setItem('fsad_loans', JSON.stringify(loans));
-        localStorage.setItem('fsad_offers', JSON.stringify(offers));
-        localStorage.setItem('fsad_transactions', JSON.stringify(transactions));
-        localStorage.setItem('fsad_activity', JSON.stringify(activity));
-        localStorage.setItem('fsad_notifications', JSON.stringify(notifications));
-    }, [users, loans, offers, transactions, activity, notifications]);
+export const DataProvider = ({ children }) => {
+    const [users, setUsers] = useState(() => safeParse('fsad_users', initialUsers));
+    const [loans, setLoans] = useState(() => safeParse('fsad_loans', initialLoans));
+    const [offers, setOffers] = useState(() => safeParse('fsad_offers', initialOffers));
+    const [transactions, setTransactions] = useState(() => safeParse('fsad_transactions', initialTransactions));
+    const [activity, setActivity] = useState(() => safeParse('fsad_activity', initialLogs));
+    const [notifications, setNotifications] = useState(() => safeParse('fsad_notifications', []));
+
+    // Split into separate effects — only writes the changed slice to localStorage
+    useEffect(() => { localStorage.setItem('fsad_users', JSON.stringify(users)); }, [users]);
+    useEffect(() => { localStorage.setItem('fsad_loans', JSON.stringify(loans)); }, [loans]);
+    useEffect(() => { localStorage.setItem('fsad_offers', JSON.stringify(offers)); }, [offers]);
+    useEffect(() => { localStorage.setItem('fsad_transactions', JSON.stringify(transactions)); }, [transactions]);
+    useEffect(() => { localStorage.setItem('fsad_activity', JSON.stringify(activity)); }, [activity]);
+    useEffect(() => { localStorage.setItem('fsad_notifications', JSON.stringify(notifications)); }, [notifications]);
 
     // --- Activity Logging & Notifications ---
-    const logActivity = (action, user, details) => {
+    const logActivity = useCallback((action, user, details) => {
         setActivity(prev => [{ action, user, details, time: `Just now (${getTimeLabel()})` }, ...prev]);
-    };
+    }, []);
 
-    const addNotification = (message, type = 'info') => {
+    const addNotification = useCallback((message, type = 'info') => {
         const newNotif = { id: Date.now().toString(), message, type, read: false, time: getTimeLabel() };
         setNotifications(prev => [newNotif, ...prev]);
-    };
+    }, []);
 
-    const markNotificationRead = (id) => {
+    const markNotificationRead = useCallback((id) => {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    };
+    }, []);
 
-    const clearNotifications = () => {
+    const clearNotifications = useCallback(() => {
         setNotifications([]);
-    };
+    }, []);
 
     // --- Users (Admin only) ---
-    const addUser = (newUser) => {
+    const addUser = useCallback((newUser) => {
         const created = { ...newUser, id: Date.now(), status: 'Active' };
         setUsers(prev => [created, ...prev]);
         logActivity('Add User', 'Admin', `Added new user: ${newUser.name} (${newUser.role})`);
         addNotification(`New ${newUser.role} user created: ${newUser.name}`, 'success');
-    };
+    }, [logActivity, addNotification]);
 
-    const blockUser = (id) => {
+    const blockUser = useCallback((id) => {
         setUsers(prev => prev.map(u => u.id === id ? { ...u, status: u.status === 'Blocked' ? 'Active' : 'Blocked' } : u));
         logActivity('User Status Toggle', 'Admin', `Toggled status for user ID ${id}`);
         addNotification(`User status updated`, 'warning');
-    };
+    }, [logActivity, addNotification]);
 
-    const editUserRole = (id, newRole) => {
+    const editUserRole = useCallback((id, newRole) => {
         setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
         logActivity('User Role Update', 'Admin', `Changed role for user ID ${id} to ${newRole}`);
         addNotification(`User role updated to ${newRole}`, 'success');
-    };
+    }, [logActivity, addNotification]);
 
-    const removeUser = (id) => {
+    const removeUser = useCallback((id) => {
         setUsers(prev => prev.filter(u => String(u.id) !== String(id)));
         logActivity('User Removed', 'Admin', `Removed user ID ${id}`);
         addNotification(`User removed (ID: ${id})`, 'error');
-    };
+    }, [logActivity, addNotification]);
 
     // --- Loans ---
-    const approveLoan = (id, lenderName) => {
+    const approveLoan = useCallback((id, lenderName) => {
         setLoans(prev => prev.map(l => l.id === id
             ? {
                 ...l,
@@ -98,22 +93,21 @@ export const DataProvider = ({ children }) => {
         ));
         logActivity('Loan Approved', lenderName || 'Lender', `Approved loan request #${id}`);
         addNotification(`Loan #${id} has been approved by ${lenderName || 'Lender'}`, 'success');
-    };
+    }, [logActivity, addNotification]);
 
-    const rejectLoanApplication = (id, lenderName) => {
+    const rejectLoanApplication = useCallback((id, lenderName) => {
         setLoans(prev => prev.map(l => l.id === id ? { ...l, status: 'Rejected', approvedBy: lenderName || 'Lender' } : l));
         logActivity('Loan Rejected', lenderName || 'Lender', `Rejected loan application #${id}`);
         addNotification(`Loan application #${id} has been rejected`, 'warning');
-    };
+    }, [logActivity, addNotification]);
 
-    const deleteLoan = (id) => {
+    const deleteLoan = useCallback((id) => {
         setLoans(prev => prev.filter(l => String(l.id) !== String(id)));
         logActivity('Loan Deleted', 'Admin', `Deleted loan #${id}`);
         addNotification(`Loan #${id} deleted`, 'error');
-    };
+    }, [logActivity, addNotification]);
 
-    // borrowerName: stamped from authenticated borrower user
-    const applyForLoan = (loanData, borrowerName) => {
+    const applyForLoan = useCallback((loanData, borrowerName) => {
         const amount = parseFloat(loanData.amount);
         const term = parseInt(loanData.term, 10);
         const newLoan = {
@@ -137,10 +131,10 @@ export const DataProvider = ({ children }) => {
         setLoans(prev => [newLoan, ...prev]);
         logActivity('Loan Application', borrowerName || 'Borrower', `Submitted application for $${amount.toLocaleString()}`);
         addNotification(`${borrowerName || 'Borrower'} applied for a $${amount.toLocaleString()} loan`, 'info');
-    };
+    }, [logActivity, addNotification]);
 
     // --- Offers ---
-    const createOffer = (offerData, lenderName) => {
+    const createOffer = useCallback((offerData, lenderName) => {
         const newOffer = {
             id: Date.now(),
             amount: parseFloat(offerData.amount),
@@ -153,9 +147,9 @@ export const DataProvider = ({ children }) => {
         setOffers(prev => [newOffer, ...prev]);
         logActivity('Offer Created', lenderName || 'Lender', `Published loan offer for $${newOffer.amount.toLocaleString()}`);
         addNotification(`New loan offer for $${newOffer.amount.toLocaleString()} published by ${lenderName || 'Lender'}`, 'success');
-    };
+    }, [logActivity, addNotification]);
 
-    const applyForOffer = (id, borrowerName) => {
+    const applyForOffer = useCallback((id, borrowerName) => {
         const offer = offers.find(o => o.id === id);
         if (offer) {
             const newLoan = {
@@ -181,10 +175,10 @@ export const DataProvider = ({ children }) => {
         setOffers(prev => prev.filter(o => o.id !== id));
         logActivity('Offer Applied', borrowerName || 'Borrower', `Applied for offer #${id} (${offer?.lender})`);
         addNotification(`${borrowerName || 'Borrower'} accepted loan offer #${id}`, 'info');
-    };
+    }, [offers, logActivity, addNotification]);
 
     // --- Transactions & Payments ---
-    const addPayment = (amount, borrowerName, loanId) => {
+    const addPayment = useCallback((amount, borrowerName, loanId) => {
         const floatAmount = parseFloat(amount);
         const newPayment = {
             id: `TXN${Date.now().toString().slice(-6)}`,
@@ -198,21 +192,27 @@ export const DataProvider = ({ children }) => {
         setTransactions(prev => [newPayment, ...prev]);
         logActivity('Payment Received', borrowerName || 'Borrower', `Paid $${floatAmount.toLocaleString()} towards loan ${loanId ? '#' + loanId : 'balance'}`);
         addNotification(`Payment of $${floatAmount.toLocaleString()} successful`, 'success');
+    }, [logActivity, addNotification]);
 
-        // Optional: Auto-close loan if balance hits 0 (Simulated by checking current active payments)
-        // In a real app we'd directly update the `loans` state to deduct balance, but since UI calculates remaining dynamically,
-        // just logging it here is fine for the mock.
-    };
+    // Memoize the entire context value to prevent unnecessary re-renders of consumers
+    const value = useMemo(() => ({
+        users, addUser, blockUser, removeUser, editUserRole,
+        loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
+        offers, createOffer, applyForOffer,
+        transactions, addPayment,
+        activity, logActivity,
+        notifications, markNotificationRead, clearNotifications
+    }), [
+        users, addUser, blockUser, removeUser, editUserRole,
+        loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
+        offers, createOffer, applyForOffer,
+        transactions, addPayment,
+        activity, logActivity,
+        notifications, markNotificationRead, clearNotifications
+    ]);
 
     return (
-        <DataContext.Provider value={{
-            users, addUser, blockUser, removeUser, editUserRole,
-            loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
-            offers, createOffer, applyForOffer,
-            transactions, addPayment,
-            activity, logActivity,
-            notifications, markNotificationRead, clearNotifications
-        }}>
+        <DataContext.Provider value={value}>
             {children}
         </DataContext.Provider>
     );

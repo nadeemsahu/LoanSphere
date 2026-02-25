@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Navbar from '../components/Navbar/Navbar';
@@ -11,25 +11,33 @@ const DashboardLayout = () => {
     // Close sidebar on route change (mobile UX)
     useEffect(() => {
         setIsMobileMenuOpen(false);
-    }, [location]);
+    }, [location.pathname]);
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
+    const toggleMobileMenu = useCallback(() => {
+        setIsMobileMenuOpen(prev => !prev);
+    }, []);
+
+    const closeMobileMenu = useCallback(() => {
+        setIsMobileMenuOpen(false);
+    }, []);
 
     return (
         <div className="dashboard-layout">
             <div
                 className={`sidebar-overlay ${isMobileMenuOpen ? 'visible' : ''}`}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
             />
 
-            <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+            <Sidebar isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
 
             <main className="main-content">
                 <Navbar onToggleMenu={toggleMobileMenu} />
-                <div id="main-content" className="page-content fade-in" tabIndex="-1">
-                    <Outlet />
+                {/* key on location.pathname ensures only the inner content re-mounts on route change,
+                    not the entire layout. The fade-in animation is on this wrapper, not the outer div. */}
+                <div id="main-content" className="page-content" tabIndex="-1">
+                    <div key={location.pathname} className="page-fade-in">
+                        <Outlet />
+                    </div>
                 </div>
             </main>
         </div>
