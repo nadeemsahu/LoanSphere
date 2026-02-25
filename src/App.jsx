@@ -95,9 +95,12 @@ const router = createBrowserRouter([
                 element: <AuthLayout />,
                 children: [
                     { path: 'login', element: <Suspense fallback={<PageLoader />}><Login /></Suspense> },
-                    { path: 'register', element: <Suspense fallback={<PageLoader />}><Register /></Suspense> },
                     { path: 'access-denied', element: <Suspense fallback={<PageLoader />}><AccessDenied /></Suspense> },
                 ],
+            },
+            {
+                path: '/register',
+                element: <Suspense fallback={<PageLoader />}><Register /></Suspense>,
             },
             {
                 path: '/admin',
