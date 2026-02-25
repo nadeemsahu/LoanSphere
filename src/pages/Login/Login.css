@@ -45,8 +45,8 @@
 
 .form-input {
     padding: 10px var(--space-md);
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
     font-size: 0.875rem;
@@ -58,9 +58,12 @@
     color: var(--text-tertiary);
 }
 
-.form-input:focus {
+.form-input:focus,
+.form-input:active {
+    background-color: var(--bg-primary) !important;
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
+    box-shadow: 0 0 0 1px var(--border-active);
+    outline: none;
 }
 
 /* Fix for browser autofill background color */
@@ -68,8 +71,10 @@
 .form-input:-webkit-autofill:hover,
 .form-input:-webkit-autofill:focus,
 .form-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px var(--bg-primary) inset !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-primary) inset !important;
     -webkit-text-fill-color: var(--text-primary) !important;
+    background-color: var(--bg-primary) !important;
+    caret-color: var(--text-primary) !important;
     transition: background-color 5000s ease-in-out 0s;
 }
 
