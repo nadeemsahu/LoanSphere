@@ -159,3 +159,154 @@
     background-color: var(--bg-secondary);
     color: var(--text-primary);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE COMPONENT OVERRIDES
+   Targeted fixes for audit-identified issues. Scoped to
+   [data-theme='dark'] only — zero light mode side effects.
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1. PRIMARY BUTTON — dark mode inverts to outlined/dark style
+      --brand-primary is #fff in dark, making btn-primary white.
+      Override to dark bg + white border + white text instead. */
+[data-theme='dark'] .btn-primary {
+    background-color: #1c1c1f;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] .btn-primary:hover:not(:disabled) {
+    background-color: #2a2a2e;
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.08);
+}
+
+/* 2. BTN-OUTLINE — ensure border and text are clearly visible */
+[data-theme='dark'] .btn-outline {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme='dark'] .btn-outline:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 3. STATUS BADGES — boost luminance for dark backgrounds */
+[data-theme='dark'] .status-badge.status-active,
+[data-theme='dark'] .status-badge.status-success {
+    background-color: #14532d;
+    color: #bbf7d0;
+}
+
+[data-theme='dark'] .status-badge.status-pending {
+    background-color: #451a03;
+    color: #fde68a;
+}
+
+[data-theme='dark'] .status-badge.status-rejected,
+[data-theme='dark'] .status-badge.status-defaulted {
+    background-color: #450a0a;
+    color: #fca5a5;
+}
+
+[data-theme='dark'] .status-badge.status-closed {
+    background-color: #27272a;
+    color: #a1a1aa;
+}
+
+[data-theme='dark'] .status-badge.status-blocked {
+    background-color: #450a0a;
+    color: #fca5a5;
+}
+
+/* 4. PAGINATION BUTTONS — match bg-secondary, clear text */
+[data-theme='dark'] .page-btn {
+    background-color: #1c1c1f;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+}
+
+[data-theme='dark'] .page-btn:hover:not(:disabled) {
+    background-color: #27272a;
+    border-color: #a1a1aa;
+    color: #ffffff;
+}
+
+[data-theme='dark'] .page-btn.active {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #09090b;
+}
+
+[data-theme='dark'] .page-btn:disabled {
+    opacity: 0.35;
+}
+
+/* 5. INPUT DEFAULT BORDER — visible without focus */
+[data-theme='dark'] input,
+[data-theme='dark'] select,
+[data-theme='dark'] textarea,
+[data-theme='dark'] .form-input,
+[data-theme='dark'] .input-field {
+    border-color: #3f3f46 !important;
+}
+
+/* 6. TABLE ROW SEPARATOR — subtle but visible */
+[data-theme='dark'] .clean-table td {
+    border-bottom-color: #27272a;
+}
+
+[data-theme='dark'] .clean-table th {
+    background-color: #1c1c1f;
+    border-bottom-color: #3f3f46;
+    color: #e4e4e7;
+}
+
+[data-theme='dark'] .clean-table tr:hover td {
+    background-color: #1f1f22;
+}
+
+/* 7. TEXT TERTIARY — readable timestamps and sub-labels */
+[data-theme='dark'] {
+    --text-tertiary: #71717a;
+}
+
+/* Boost timestamp/sub-label readability via specific selectors */
+[data-theme='dark'] .text-secondary-xs,
+[data-theme='dark'] .pagination-info,
+[data-theme='dark'] .sidebar-footer,
+[data-theme='dark'] .menu-email,
+[data-theme='dark'] .breadcrumb-item,
+[data-theme='dark'] .breadcrumb-separator {
+    color: #a1a1aa;
+}
+
+/* 8. NOTIFICATION DROPDOWN — text + divider clarity */
+[data-theme='dark'] .notif-dropdown {
+    background-color: #18181b;
+    border-color: #3f3f46;
+}
+
+[data-theme='dark'] .notif-item {
+    border-bottom-color: #27272a;
+}
+
+[data-theme='dark'] .notif-message {
+    color: #e4e4e7;
+}
+
+[data-theme='dark'] .notif-time {
+    color: #a1a1aa;
+}
+
+/* 9. TABLE WRAPPER — slightly lifted from page bg */
+[data-theme='dark'] .table-wrapper {
+    border-color: #3f3f46;
+    background-color: #18181b;
+}
+
+[data-theme='dark'] .table-pagination {
+    background-color: #1c1c1f;
+    border-top-color: #3f3f46;
+}
