@@ -110,7 +110,7 @@ const router = createBrowserRouter([
                     { path: 'loans', element: <Suspense fallback={<PageLoader />}><LoanMonitoring /></Suspense> },
                     { path: 'transactions', element: <Suspense fallback={<PageLoader />}><TransactionMonitoring /></Suspense> },
                     { path: 'stats', element: <Suspense fallback={<PageLoader />}><SystemActivity /></Suspense> },
-                    { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
+                    { path: '*', element: <Navigate to="/home" replace /> },
                 ],
             },
             {
@@ -127,7 +127,7 @@ const router = createBrowserRouter([
                     { path: 'applications', element: <Suspense fallback={<PageLoader />}><BorrowerApplications /></Suspense> },
                     { path: 'active-loans', element: <Suspense fallback={<PageLoader />}><ActiveLoans /></Suspense> },
                     { path: 'payments', element: <Suspense fallback={<PageLoader />}><PaymentTracking /></Suspense> },
-                    { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
+                    { path: '*', element: <Navigate to="/home" replace /> },
                 ],
             },
             {
@@ -143,7 +143,7 @@ const router = createBrowserRouter([
                     { path: 'applications', element: <Suspense fallback={<PageLoader />}><MyApplications /></Suspense> },
                     { path: 'loans', element: <Suspense fallback={<PageLoader />}><MyLoans /></Suspense> },
                     { path: 'payments', element: <Suspense fallback={<PageLoader />}><Payments /></Suspense> },
-                    { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
+                    { path: '*', element: <Navigate to="/home" replace /> },
                 ],
             },
             {
@@ -159,7 +159,7 @@ const router = createBrowserRouter([
                     { path: 'risk', element: <Suspense fallback={<PageLoader />}><RiskAnalysis /></Suspense> },
                     { path: 'reports', element: <Suspense fallback={<PageLoader />}><FinancialReports /></Suspense> },
                     { path: 'transactions', element: <Suspense fallback={<PageLoader />}><Transactions /></Suspense> },
-                    { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
+                    { path: '*', element: <Navigate to="/home" replace /> },
                 ],
             },
             {
