@@ -11,6 +11,7 @@ import AuthLayout from './layouts/AuthLayout';
 
 // Lazy-loaded pages (code-split per route for performance)
 const Login = lazy(() => import('./pages/Login/Login'));
+const Register = lazy(() => import('./pages/Register/Register'));
 const AccessDenied = lazy(() => import('./pages/AccessDenied'));
 const Homepage = lazy(() => import('./pages/Home/Homepage'));
 
@@ -94,6 +95,7 @@ const router = createBrowserRouter([
                 element: <AuthLayout />,
                 children: [
                     { path: 'login', element: <Suspense fallback={<PageLoader />}><Login /></Suspense> },
+                    { path: 'register', element: <Suspense fallback={<PageLoader />}><Register /></Suspense> },
                     { path: 'access-denied', element: <Suspense fallback={<PageLoader />}><AccessDenied /></Suspense> },
                 ],
             },

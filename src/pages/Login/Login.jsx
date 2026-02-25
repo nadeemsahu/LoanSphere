@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 
@@ -133,8 +133,13 @@ const Login = () => {
                 </button>
             </form>
 
+            <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                New to LoanSphere?{' '}
+                <Link to="/register" style={{ color: 'var(--text-primary)', fontWeight: 600, textDecoration: 'none' }}>Create an account</Link>
+            </p>
         </div>
     );
 };
 
 export default Login;
+
