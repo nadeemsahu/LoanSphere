@@ -8,11 +8,11 @@
 
 .auth-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 380px;
     padding: var(--space-md);
     display: flex;
     flex-direction: column;
-    gap: var(--space-lg);
+    gap: var(--space-md);
 }
 
 .auth-header {
@@ -35,7 +35,7 @@
 
 .auth-card {
     background-color: var(--bg-secondary);
-    padding: var(--space-2xl);
+    padding: var(--space-xl);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-light);

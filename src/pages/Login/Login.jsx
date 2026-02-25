@@ -133,10 +133,6 @@ const Login = () => {
                 </button>
             </form>
 
-            <div className="login-footer">
-                <p>Demo Credentials:</p>
-                <small>admin@loansphere.com / password</small>
-            </div>
         </div>
     );
 };
