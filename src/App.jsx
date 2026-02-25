@@ -45,7 +45,6 @@ const Transactions = lazy(() => import('./pages/Analyst/Transactions'));
 
 // Shared
 const PlaceholderPage = lazy(() => import('./components/PlaceholderPage'));
-const GenericTablePage = lazy(() => import('./components/GenericTablePage'));
 
 // Minimal loading fallback (no spinner — just empty to avoid layout shift)
 const PageLoader = () => (
