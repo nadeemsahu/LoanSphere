@@ -17,10 +17,11 @@ const Sidebar = ({ isOpen, onClose }) => {
         ],
         lender: [
             { label: 'Dashboard', path: '/lender', icon: 'grid' },
-            { label: 'Create Loan Offer', path: '/lender/create-loan', icon: 'plus-circle' },
-            { label: 'My Offers', path: '/lender/offers', icon: 'file-text' },
-            { label: 'My Borrowers', path: '/lender/borrowers', icon: 'users' },
-            { label: 'Payment Tracking', path: '/lender/payments', icon: 'dollar-sign' },
+            { label: 'Create Loan Offer', path: '/lender/create-offer', icon: 'plus-circle' },
+            { label: 'My Loan Offers', path: '/lender/offers', icon: 'file-text' },
+            { label: 'Borrower Applications', path: '/lender/applications', icon: 'users' },
+            { label: 'Active Loans', path: '/lender/active-loans', icon: 'briefcase' },
+            { label: 'Payments', path: '/lender/payments', icon: 'dollar-sign' },
         ],
         borrower: [
             { label: 'Dashboard', path: '/borrower', icon: 'grid' },

@@ -5,11 +5,11 @@ import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import '../../styles/dashboard.css';
 
-const CreateLoan = () => {
+const CreateLoanOffer = () => {
     const { createOffer } = useDataContext();
     const { user } = useAuth();
     const lenderName = user?.name || 'Lender';
-    const [formData, setFormData] = useState({ amount: '', interest: '', term: '' });
+    const [formData, setFormData] = useState({ amount: '', interest: '', term: '', description: '', optionalTerms: '' });
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState('');
 
@@ -31,7 +31,7 @@ const CreateLoan = () => {
         createOffer(formData, lenderName);
         setSubmitted(true);
         setError('');
-        setFormData({ amount: '', interest: '', term: '' });
+        setFormData({ amount: '', interest: '', term: '', description: '', optionalTerms: '' });
         setTimeout(() => setSubmitted(false), 5000);
     };
 
@@ -103,7 +103,39 @@ const CreateLoan = () => {
                         />
                     </div>
 
-                    <div style={{ marginTop: 'var(--space-md)' }}>
+                    <div className="form-row-1" style={{ marginTop: 'var(--space-md)' }}>
+                        <div className="input-field-wrapper">
+                            <label htmlFor="cl-description" className="input-label">Description / Purpose Filter</label>
+                            <textarea
+                                id="cl-description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                placeholder="e.g. For small business expansion only"
+                                className="form-input"
+                                rows="3"
+                                style={{ width: '100%', resize: 'vertical' }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-row-1" style={{ marginTop: 'var(--space-md)' }}>
+                        <div className="input-field-wrapper">
+                            <label htmlFor="cl-optional" className="input-label">Optional Terms</label>
+                            <textarea
+                                id="cl-optional"
+                                name="optionalTerms"
+                                value={formData.optionalTerms}
+                                onChange={handleChange}
+                                placeholder="e.g. Requires 680+ credit score, collateral needed"
+                                className="form-input"
+                                rows="2"
+                                style={{ width: '100%', resize: 'vertical' }}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: 'var(--space-xl)' }}>
                         <Button type="submit" size="lg" style={{ width: '100%' }}>
                             Publish Loan Offer
                         </Button>
@@ -114,4 +146,4 @@ const CreateLoan = () => {
     );
 };
 
-export default CreateLoan;
+export default CreateLoanOffer;

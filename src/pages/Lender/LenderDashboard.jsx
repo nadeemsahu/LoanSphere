@@ -1,147 +1,106 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardCard from '../../components/DashboardCard/DashboardCard';
-import Table from '../../components/Table/Table';
-import Button from '../../components/Button/Button';
-import Input from '../../components/Input/Input';
 import { useDataContext } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/dashboard.css';
 
 const LenderDashboard = () => {
-    const { user, updateUser } = useAuth();
+    const { user } = useAuth();
     const lenderName = user?.name || 'John Lender';
-    const totalCapital = user?.totalCapital || 0;
 
-    const { loans, offers, approveLoan } = useDataContext();
-    const [isEditingCapital, setIsEditingCapital] = useState(false);
-    const [newCapital, setNewCapital] = useState(totalCapital);
-    const [approvedId, setApprovedId] = useState(null);
+    const { loans, offers, transactions, activity } = useDataContext();
     const navigate = useNavigate();
 
-    // PS15: Lender sees only loans explicitly approved by them or pending their approval
+    // Specific counts for this lender
     const myOffers = offers.filter(o => o.lender === lenderName);
     const myLoans = loans.filter(l => l.approvedBy === lenderName);
 
-    const activeLoans = myLoans.filter(l => l.status === 'Active');
-    const pendingLoans = myLoans.filter(l => l.status === 'Pending');
-    const totalDeployed = activeLoans.reduce((acc, l) => acc + l.amount, 0);
-    const availableCapital = totalCapital - totalDeployed;
+    // Derived states
+    const activeLoansCount = myLoans.filter(l => l.status === 'Active').length;
 
-    const handleUpdateCapital = () => {
-        updateUser({ totalCapital: parseFloat(newCapital) });
-        setIsEditingCapital(false);
+    // Borrower applications are pending loans linked to this lender's offers
+    const pendingApplications = loans.filter(l => l.status === 'Pending' && l.approvedBy === lenderName);
+    const pendingCount = pendingApplications.length;
+
+    // Payments specific to this lender (my borrowers paying my loans)
+    const myBorrowers = myLoans.map(l => l.borrower);
+    // Note: If transactions have loanId, we can strictly link it. 
+    // Here we filter by borrower name as a proxy for the lender's payments, matching the requested spec.
+    const myPayments = transactions.filter(t => t.type === 'Payment' && myBorrowers.includes(t.borrower));
+    const totalEarnings = myPayments.reduce((acc, p) => acc + parseFloat(p.amount || 0), 0);
+
+    // Lender specific activity logs
+    const lenderActivity = activity.filter(a => a.user === lenderName || a.details.includes(lenderName) || myBorrowers.includes(a.user));
+
+    const getActionIcon = (action) => {
+        const act = action.toLowerCase();
+        if (act.includes('user') || act.includes('application')) return '👤';
+        if (act.includes('loan') || act.includes('offer')) return '📜';
+        if (act.includes('payment')) return '💲';
+        return '⚡';
     };
-
-    const handleApprove = (id) => {
-        approveLoan(id, lenderName);
-        setApprovedId(id);
-        setTimeout(() => setApprovedId(null), 3000);
-    };
-
-    const offerColumns = [
-        { header: 'ID', accessor: 'id' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Term', render: (row) => `${row.term} months` },
-        { header: 'Status', render: () => <span className="status-badge status-active">Active</span> },
-    ];
-
-    const loanColumns = [
-        { header: 'ID', accessor: 'id' },
-        { header: 'Borrower', accessor: 'borrower' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
-        {
-            header: 'Action', render: (row) => (
-                row.status === 'Pending'
-                    ? <button
-                        className="btn btn-outline btn-xs"
-                        onClick={() => handleApprove(row.id)}
-                    >
-                        {approvedId === row.id ? '✅ Approved' : 'Approve'}
-                    </button>
-                    : <span className="text-secondary-xs">—</span>
-            )
-        },
-    ];
 
     return (
         <div className="dashboard-container fade-in">
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Lender Overview</h1>
-                    <p className="page-subtitle">Manage your loan portfolio and active borrower requests</p>
+                    <p className="page-subtitle">Track your loan offers, applications, and portfolio earnings.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-outline btn-sm" onClick={() => setIsEditingCapital(true)}>
-                        ⚙️ Set Capital
-                    </button>
-                    <button className="btn btn-outline btn-sm" onClick={() => window.location.reload()}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                        </svg>
-                        Refresh
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/lender/create-offer')}>
+                        + Create Loan Offer
                     </button>
                 </div>
             </div>
-
-            {isEditingCapital && (
-                <div className="content-section fade-in" style={{ backgroundColor: 'var(--bg-secondary)', borderStyle: 'dashed' }}>
-                    <div className="section-header">
-                        <h3>Update Portfolio Capital</h3>
-                        <button className="btn-link" onClick={() => setIsEditingCapital(false)}>Cancel</button>
-                    </div>
-                    <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center', marginTop: 'var(--space-sm)' }}>
-                        <div style={{ flex: 1 }}>
-                            <Input
-                                label="Total Investment Capital ($)"
-                                type="number"
-                                value={newCapital}
-                                onChange={(e) => setNewCapital(e.target.value)}
-                                placeholder="500000"
-                            />
-                        </div>
-                        <Button onClick={handleUpdateCapital} style={{ height: '42px', marginTop: '22px' }}>Update Capital</Button>
-                    </div>
-                </div>
-            )}
 
             <div className="dashboard-grid">
-                <DashboardCard title="Total Capital" value={`$${(totalCapital / 1000).toLocaleString()}k`} label="Investment budget" icon="💼" />
-                <DashboardCard title="Capital Deployed" value={`$${(totalDeployed / 1000).toLocaleString()}k`} trend={{ value: 'Active Portfolio', positive: true }} icon="💰" />
-                <DashboardCard title="Available Capital" value={`$${(availableCapital / 1000).toLocaleString()}k`} label="Remaining to lend" icon="📈" />
-                <DashboardCard title="Pending Approvals" value={pendingLoans.length.toString()} label="Awaiting review" icon="⏳" />
+                <DashboardCard title="Offers Created" value={myOffers.length.toString()} label="Active loan postings" icon="📄" />
+                <DashboardCard title="Active Loans" value={activeLoansCount.toString()} label="Currently performing" icon="💼" />
+                <DashboardCard title="Pending Apps" value={pendingCount.toString()} label="Awaiting your review" icon="⏳" />
+                <DashboardCard title="Payments" value={myPayments.length.toString()} label="Total deposits made" icon="💸" />
+                <DashboardCard title="Total Earnings" value={`$${totalEarnings.toLocaleString()}`} label="Collected cash" icon="📈" />
             </div>
 
-            <div className="content-grid-2-1">
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>My Active & Pending Loans</h3>
-                        <span className="badge-count">{myLoans.length}</span>
-                    </div>
-                    {myLoans.length === 0 ? (
-                        <div className="no-data">
-                            No loans associated with your account yet.
-                        </div>
-                    ) : (
-                        <Table columns={loanColumns} data={myLoans} />
-                    )}
+            <div className="content-section" style={{ marginTop: '24px', padding: '24px' }}>
+                <div className="section-header" style={{ marginBottom: '24px' }}>
+                    <h3>Recent Activity</h3>
+                    <span className="badge-count">{lenderActivity.length}</span>
                 </div>
-                <div className="content-section">
-                    <div className="section-header">
-                        <h3>Published Offers</h3>
-                        <button className="btn-link" onClick={() => navigate('/lender/create-loan')}>+ New</button>
+
+                {lenderActivity.length === 0 ? (
+                    <div className="no-data">No recent activity for your portfolio.</div>
+                ) : (
+                    <div style={{ position: 'relative', borderLeft: '2px solid var(--border-medium)', marginLeft: '16px', paddingLeft: '24px' }}>
+                        {lenderActivity.slice(0, 8).map((log, index) => (
+                            <div key={index} style={{ marginBottom: '20px', position: 'relative' }}>
+                                <div style={{
+                                    position: 'absolute', left: '-37px', top: '0', width: '24px', height: '24px',
+                                    borderRadius: '50%', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-medium)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
+                                }}>
+                                    {getActionIcon(log.action)}
+                                </div>
+                                <div style={{
+                                    backgroundColor: 'var(--bg-secondary)', padding: '16px',
+                                    borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{log.time}</span>
+                                    </div>
+                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                        {log.details}
+                                    </p>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                        Actor: <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{log.user}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    {myOffers.length === 0 ? (
-                        <div className="no-data">
-                            No offers published yet.
-                        </div>
-                    ) : (
-                        <Table columns={offerColumns} data={myOffers} pagination={false} />
-                    )}
-                </div>
+                )}
             </div>
         </div>
     );

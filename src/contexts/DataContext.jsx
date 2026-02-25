@@ -100,6 +100,12 @@ export const DataProvider = ({ children }) => {
         addNotification(`Loan #${id} has been approved by ${lenderName || 'Lender'}`, 'success');
     };
 
+    const rejectLoanApplication = (id, lenderName) => {
+        setLoans(prev => prev.map(l => l.id === id ? { ...l, status: 'Rejected', approvedBy: lenderName || 'Lender' } : l));
+        logActivity('Loan Rejected', lenderName || 'Lender', `Rejected loan application #${id}`);
+        addNotification(`Loan application #${id} has been rejected`, 'warning');
+    };
+
     const deleteLoan = (id) => {
         setLoans(prev => prev.filter(l => String(l.id) !== String(id)));
         logActivity('Loan Deleted', 'Admin', `Deleted loan #${id}`);
@@ -140,6 +146,8 @@ export const DataProvider = ({ children }) => {
             amount: parseFloat(offerData.amount),
             interestRate: parseFloat(offerData.interest),
             term: parseInt(offerData.term, 10),
+            description: offerData.description || '',
+            optionalTerms: offerData.optionalTerms || '',
             lender: lenderName || 'Lender'
         };
         setOffers(prev => [newOffer, ...prev]);
@@ -194,7 +202,7 @@ export const DataProvider = ({ children }) => {
     return (
         <DataContext.Provider value={{
             users, addUser, blockUser, removeUser, editUserRole,
-            loans, approveLoan, deleteLoan, applyForLoan,
+            loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
             offers, createOffer, applyForOffer,
             transactions, addPayment,
             activity, logActivity,

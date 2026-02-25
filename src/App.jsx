@@ -23,7 +23,11 @@ const SystemActivity = lazy(() => import('./pages/Admin/SystemActivity'));
 
 // Lender
 const LenderDashboard = lazy(() => import('./pages/Lender/LenderDashboard'));
-const CreateLoan = lazy(() => import('./pages/Lender/CreateLoan'));
+const CreateLoanOffer = lazy(() => import('./pages/Lender/CreateLoanOffer'));
+const MyLoanOffers = lazy(() => import('./pages/Lender/MyLoanOffers'));
+const BorrowerApplications = lazy(() => import('./pages/Lender/BorrowerApplications'));
+const ActiveLoans = lazy(() => import('./pages/Lender/ActiveLoans'));
+const PaymentTracking = lazy(() => import('./pages/Lender/PaymentTracking'));
 
 // Borrower
 const BorrowerDashboard = lazy(() => import('./pages/Borrower/BorrowerDashboard'));
@@ -118,10 +122,11 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     { index: true, element: <Suspense fallback={<PageLoader />}><LenderDashboard /></Suspense> },
-                    { path: 'offers', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="Loan Offers" type="offers" /></Suspense> },
-                    { path: 'borrowers', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="Qualified Borrowers" type="users" /></Suspense> },
-                    { path: 'payments', element: <Suspense fallback={<PageLoader />}><GenericTablePage title="Payment Tracking" type="payments" /></Suspense> },
-                    { path: 'create-loan', element: <Suspense fallback={<PageLoader />}><CreateLoan /></Suspense> },
+                    { path: 'create-offer', element: <Suspense fallback={<PageLoader />}><CreateLoanOffer /></Suspense> },
+                    { path: 'offers', element: <Suspense fallback={<PageLoader />}><MyLoanOffers /></Suspense> },
+                    { path: 'applications', element: <Suspense fallback={<PageLoader />}><BorrowerApplications /></Suspense> },
+                    { path: 'active-loans', element: <Suspense fallback={<PageLoader />}><ActiveLoans /></Suspense> },
+                    { path: 'payments', element: <Suspense fallback={<PageLoader />}><PaymentTracking /></Suspense> },
                     { path: '*', element: <Suspense fallback={<PageLoader />}><PlaceholderPage /></Suspense> },
                 ],
             },
