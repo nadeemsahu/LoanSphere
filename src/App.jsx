@@ -44,7 +44,6 @@ const FinancialReports = lazy(() => import('./pages/Analyst/FinancialReports'));
 const Transactions = lazy(() => import('./pages/Analyst/Transactions'));
 
 // Shared
-const PlaceholderPage = lazy(() => import('./components/PlaceholderPage'));
 
 // Minimal loading fallback (no spinner — just empty to avoid layout shift)
 const PageLoader = () => (
