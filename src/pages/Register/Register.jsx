@@ -61,13 +61,17 @@ const Register = () => {
             <div className="register-card">
                 {/* Header */}
                 <div className="register-header">
-                    <div className="register-logo">
-                        <span className="register-logo-icon">▲</span>
-                        <span className="register-logo-text">LoanSphere</span>
+                    <div className="register-logo-row">
+                        <Link to="/home" className="register-logo">
+                            <span className="register-logo-icon">▲</span>
+                            <span className="register-logo-text">LoanSphere</span>
+                        </Link>
+                        <Link to="/home" className="register-home-link">← Home</Link>
                     </div>
                     <h1 className="register-title">Create an account</h1>
                     <p className="register-subtitle">Join as a borrower or lender — free to start.</p>
                 </div>
+
 
                 {/* Success state */}
                 {success ? (
