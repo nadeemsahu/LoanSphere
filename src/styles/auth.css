@@ -1,31 +1,47 @@
+/* ═══════════════════════════════════════════════════════
+   AUTH LAYOUT — PREMIUM FINTECH SHELL
+   Covers the outer layout, background, card, logo header,
+   and footer nav used by both Login and Register.
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Phase 7 + 8: BACKGROUND & CENTERING ─── */
 .auth-layout {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    padding: var(--space-xl) var(--space-md);
+    /* Phase 7: Subtle gradient — premium minimal fintech */
     background-color: var(--bg-primary);
+    background-image:
+        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(9, 9, 11, 0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 110%, rgba(9, 9, 11, 0.04) 0%, transparent 60%);
 }
 
+/* Phase 8: Container — properly sized + balanced */
 .auth-container {
     width: 100%;
-    max-width: 380px;
-    padding: var(--space-md);
+    max-width: 420px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: var(--space-lg);
+    margin: 0 auto;
 }
 
+/* ─── Phase 6: LOGO / BACK HEADER ─── */
 .auth-header {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
+    gap: 10px;
     text-decoration: none;
-    transition: opacity var(--transition-fast);
+    transition: opacity 160ms ease;
+    padding: 4px 0;
 }
 
 .auth-header:hover {
-    opacity: 0.8;
+    opacity: 0.75;
 }
 
 .auth-header .logo-icon svg {
@@ -34,34 +50,77 @@
 }
 
 .auth-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
+    letter-spacing: -0.02em;
 }
 
+/* ─── Phase 2: AUTH CARD — depth and premium feel ─── */
 .auth-card {
     background-color: var(--bg-secondary);
-    padding: var(--space-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-light);
+    padding: 40px 32px;
+    border-radius: 16px;
+    /* Layered shadow for premium depth */
+    box-shadow:
+        0 0 0 1px rgba(9, 9, 11, 0.05),
+        0 8px 16px -4px rgba(0, 0, 0, 0.05),
+        0 24px 48px -12px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: box-shadow 250ms ease, transform 250ms ease;
+    width: 100%;
 }
 
+.auth-card:hover {
+    box-shadow:
+        0 0 0 1px rgba(9, 9, 11, 0.08),
+        0 12px 24px -4px rgba(0, 0, 0, 0.06),
+        0 32px 64px -12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* ─── Phase 6: FOOTER NAV — "Back to Home" ─── */
 .auth-footer-nav {
     text-align: center;
-    margin-top: calc(var(--space-sm) * -1);
+    margin-top: 0;
 }
 
 .back-to-home-link {
     display: inline-flex;
     align-items: center;
-    color: var(--text-secondary);
+    gap: 4px;
+    color: var(--text-tertiary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
-    transition: color var(--transition-fast);
+    letter-spacing: 0.01em;
+    transition: color 160ms ease;
+    padding: 4px 0;
 }
 
 .back-to-home-link:hover {
     color: var(--text-primary);
+}
+
+/* ─── Phase 9: DARK MODE BACKGROUND ─── */
+[data-theme='dark'] .auth-layout {
+    background-color: var(--bg-primary);
+    background-image:
+        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(255, 255, 255, 0.03) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 110%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+}
+
+[data-theme='dark'] .auth-card {
+    background-color: var(--bg-secondary);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 8px 16px -4px rgba(0, 0, 0, 0.4),
+        0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='dark'] .auth-card:hover {
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.15),
+        0 12px 24px -4px rgba(0, 0, 0, 0.5),
+        0 32px 64px -12px rgba(0, 0, 0, 0.7);
 }
