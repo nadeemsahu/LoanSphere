@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import './Register.css';
 
 const Register = () => {
-    const { register } = useAuth();
+    const { register, googleLogin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const googleButtonRef = useRef(null);
 
     const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: 'borrower' });
     const [error, setError] = useState('');
@@ -58,6 +60,33 @@ const Register = () => {
         }
     };
 
+    useEffect(() => {
+        if (!window.google) return;
+
+        window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+            callback: (response) => {
+                googleLogin(response.credential).then(res => {
+                    if (res.success) {
+                        const userRole = res.user?.role || 'borrower';
+                        const targetDashboard = `/${userRole}`;
+                        // Redirect straight to dashboard
+                        navigate(targetDashboard, { replace: true });
+                    } else {
+                        setError(res.message);
+                    }
+                });
+            }
+        });
+
+        if (googleButtonRef.current) {
+            window.google.accounts.id.renderButton(
+                googleButtonRef.current,
+                { theme: theme === 'dark' ? 'filled_black' : 'outline', size: 'large', width: '100%', text: 'continue_with' }
+            );
+        }
+    }, [theme, googleLogin, navigate]);
+
     return (
         <div className="register-container">
             <div className="register-card">
@@ -108,6 +137,14 @@ const Register = () => {
                                 {error}
                             </div>
                         )}
+
+                        <div className="google-auth-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                            <div ref={googleButtonRef} id="google-register-btn"></div>
+                        </div>
+
+                        <div className="login-divider" style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--text-muted)' }}>
+                            <span>or register with email</span>
+                        </div>
 
                         {/* Role selector */}
                         <div className="register-role-tabs" role="group" aria-label="Select account type">

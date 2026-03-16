@@ -14,7 +14,7 @@ test.describe('Login UI Enhancements Visual Test', () => {
         await page.goto('http://localhost:5173/login');
 
         // Wait for the main card to be visible
-        await expect(page.locator('.auth-card')).toBeVisible();
+        await expect(page.locator('.login-form-container')).toBeVisible();
 
         // Give it a tiny bit of time for fonts to render and animations to settle
         await page.waitForTimeout(1500);
