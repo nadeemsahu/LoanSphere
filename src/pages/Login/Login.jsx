@@ -51,7 +51,11 @@ const Login = () => {
             client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
             callback: (response) => {
                 googleLogin(response.credential).then(res => {
-                    if (res.success) {
+                    if (res.success && res.needsRegistration) {
+                        // User verified via Google but doesn't exist yet, redirect to register to complete onboarding
+                        navigate('/register', { state: { googleData: res.googleData } });
+                    } else if (res.success) {
+                        // Normal login success for existing user
                         const role = res.user?.role || 'borrower';
                         const targetDashboard = `/${role}`;
                         const isInvalidPath = from === '/' || !from.startsWith(targetDashboard);

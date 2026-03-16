@@ -5,12 +5,23 @@ import { useTheme } from '../../contexts/ThemeContext';
 import './Register.css';
 
 const Register = () => {
-    const { register, googleLogin } = useAuth();
+    const { register, googleLogin, completeGoogleRegistration } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const googleButtonRef = useRef(null);
 
-    const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: 'borrower' });
+    // If redirected from login page's Google button with no account:
+    const initialGoogleData = location.state?.googleData || null;
+    const [googleData, setGoogleData] = useState(initialGoogleData);
+
+    const [form, setForm] = useState({
+        name: initialGoogleData?.name || '',
+        email: initialGoogleData?.email || '',
+        phone: '',
+        password: '',
+        confirm: '',
+        role: 'borrower'
+    });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -25,10 +36,10 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        const { name, email, password, confirm, role } = form;
+        const { name, email, phone, password, confirm, role } = form;
 
-        if (!name.trim() || !email.trim() || !password || !confirm || !role) {
-            setError('All fields are required.');
+        if (!name.trim() || !email.trim() || !role || (!googleData && !password) || (!googleData && !confirm)) {
+            setError('All required fields must be filled.');
             return;
         }
         if (name.trim().length < 2) {
@@ -39,17 +50,35 @@ const Register = () => {
             setError('Enter a valid email address.');
             return;
         }
-        if (password.length < 6) {
+        if (!googleData && password.length < 6) {
             setError('Password must be at least 6 characters.');
             return;
         }
-        if (password !== confirm) {
+        if (!googleData && password !== confirm) {
+            setError('Passwords do not match.');
+            return;
+        }
+        if (password && password !== confirm) {
             setError('Passwords do not match.');
             return;
         }
 
         setLoading(true);
-        const result = register(name, email, password, role);
+        let result;
+
+        if (googleData) {
+            // Advanced Google Signup Flow
+            result = completeGoogleRegistration({
+                ...googleData,
+                phone,
+                role,
+                password
+            });
+        } else {
+            // Manual Signup Flow
+            result = register(name, email, password, role);
+        }
+
         setLoading(false);
 
         if (result.success) {
@@ -67,10 +96,19 @@ const Register = () => {
             client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
             callback: (response) => {
                 googleLogin(response.credential).then(res => {
-                    if (res.success) {
+                    if (res.success && res.needsRegistration) {
+                        // User verified via Google but doesn't exist yet, show extra fields
+                        setGoogleData(res.googleData);
+                        setForm(prev => ({
+                            ...prev,
+                            name: res.googleData.name,
+                            email: res.googleData.email
+                        }));
+                        setError('Please complete your profile details below.');
+                    } else if (res.success) {
+                        // Valid existing user, directly log them in from the register page
                         const userRole = res.user?.role || 'borrower';
                         const targetDashboard = `/${userRole}`;
-                        // Redirect straight to dashboard
                         navigate(targetDashboard, { replace: true });
                     } else {
                         setError(res.message);
@@ -174,7 +212,7 @@ const Register = () => {
                                     placeholder="e.g. Alice Johnson"
                                     value={form.name}
                                     onChange={handleChange}
-                                    disabled={loading}
+                                    disabled={loading || !!googleData}
                                 />
                             </div>
                             <div className="register-field">
@@ -187,12 +225,33 @@ const Register = () => {
                                     placeholder="you@example.com"
                                     value={form.email}
                                     onChange={handleChange}
-                                    disabled={loading}
+                                    disabled={loading || !!googleData}
                                 />
                             </div>
+
+                            {/* Additional Field: Phone Number */}
+                            {googleData && (
+                                <div className="register-field">
+                                    <label htmlFor="reg-phone">Phone Number (Required)</label>
+                                    <input
+                                        id="reg-phone"
+                                        name="phone"
+                                        type="tel"
+                                        autoComplete="tel"
+                                        placeholder="e.g. +1 555-0123"
+                                        value={form.phone}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+                            )}
+
                             <div className="register-row">
                                 <div className="register-field">
-                                    <label htmlFor="reg-password">Password</label>
+                                    <label htmlFor="reg-password">
+                                        {googleData ? 'Password (Optional)' : 'Password'}
+                                    </label>
                                     <input
                                         id="reg-password"
                                         name="password"
