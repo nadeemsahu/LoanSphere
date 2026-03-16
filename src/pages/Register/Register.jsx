@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import GoogleAuthButton from '../../components/GoogleAuthButton/GoogleAuthButton';
 import './Register.css';
 
 const Register = () => {
     const { register, googleLogin, completeGoogleRegistration } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const googleButtonRef = useRef(null);
 
     // If redirected from login page's Google button with no account:
     const initialGoogleData = location.state?.googleData || null;
@@ -89,41 +89,27 @@ const Register = () => {
         }
     };
 
-    useEffect(() => {
-        if (!window.google) return;
-
-        window.google.accounts.id.initialize({
-            client_id: '340707566273-h3tg2knu0kmimdcj8rvi0jvgq6juta7t.apps.googleusercontent.com',
-            callback: (response) => {
-                googleLogin(response.credential).then(res => {
-                    if (res.success && res.needsRegistration) {
-                        // User verified via Google but doesn't exist yet, show extra fields
-                        setGoogleData(res.googleData);
-                        setForm(prev => ({
-                            ...prev,
-                            name: res.googleData.name,
-                            email: res.googleData.email
-                        }));
-                        setError('Please complete your profile details below.');
-                    } else if (res.success) {
-                        // Valid existing user, directly log them in from the register page
-                        const userRole = res.user?.role || 'borrower';
-                        const targetDashboard = `/${userRole}`;
-                        navigate(targetDashboard, { replace: true });
-                    } else {
-                        setError(res.message);
-                    }
-                });
+    const handleGoogleSuccess = (response) => {
+        googleLogin(response.credential).then(res => {
+            if (res.success && res.needsRegistration) {
+                // User verified via Google but doesn't exist yet, show extra fields
+                setGoogleData(res.googleData);
+                setForm(prev => ({
+                    ...prev,
+                    name: res.googleData.name,
+                    email: res.googleData.email
+                }));
+                setError('Please complete your profile details below.');
+            } else if (res.success) {
+                // Valid existing user, directly log them in from the register page
+                const userRole = res.user?.role || 'borrower';
+                const targetDashboard = `/${userRole}`;
+                navigate(targetDashboard, { replace: true });
+            } else {
+                setError(res.message);
             }
         });
-
-        if (googleButtonRef.current) {
-            window.google.accounts.id.renderButton(
-                googleButtonRef.current,
-                { theme: theme === 'dark' ? 'filled_black' : 'outline', size: 'large', width: '100%', text: 'continue_with' }
-            );
-        }
-    }, [theme, googleLogin, navigate]);
+    };
 
     return (
         <div className="register-container">
@@ -176,9 +162,7 @@ const Register = () => {
                             </div>
                         )}
 
-                        <div className="google-auth-wrapper" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                            <div ref={googleButtonRef} id="google-register-btn"></div>
-                        </div>
+                        <GoogleAuthButton onSuccess={handleGoogleSuccess} text="continue_with" />
 
                         <div className="login-divider" style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--text-muted)' }}>
                             <span>or register with email</span>

@@ -1,0 +1,14 @@
+.google-auth-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.google-auth-button-mount {
+    width: 100%;
+    /* Google renders an iframe natively, so setting max-width helps responsiveness */
+    display: flex;
+    justify-content: center;
+}
