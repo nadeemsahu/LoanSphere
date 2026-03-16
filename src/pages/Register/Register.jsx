@@ -93,7 +93,7 @@ const Register = () => {
         if (!window.google) return;
 
         window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+            client_id: '340707566273-h3tg2knu0kmimdcj8rvi0jvgq6juta7t.apps.googleusercontent.com',
             callback: (response) => {
                 googleLogin(response.credential).then(res => {
                     if (res.success && res.needsRegistration) {
