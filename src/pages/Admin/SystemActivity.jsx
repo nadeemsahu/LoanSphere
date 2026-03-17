@@ -26,43 +26,20 @@ const SystemActivity = () => {
                 {activity.length === 0 ? (
                     <div className="no-data">No activity logged yet.</div>
                 ) : (
-                    <div style={{ position: 'relative', borderLeft: '2px solid var(--border-medium)', marginLeft: '16px', paddingLeft: '24px' }}>
+                    <div className="activity-timeline">
                         {activity.map((log, index) => (
-                            <div key={index} style={{ marginBottom: '24px', position: 'relative' }}>
-                                {/* Timeline Dot */}
-                                <div style={{
-                                    position: 'absolute',
-                                    left: '-37px',
-                                    top: '0',
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '50%',
-                                    backgroundColor: 'var(--bg-secondary)',
-                                    border: '2px solid var(--border-medium)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '12px'
-                                }}>
+                            <div key={index} className="activity-item">
+                                <div className="activity-dot">
                                     {getActionIcon(log.action)}
                                 </div>
-
-                                {/* Content Card */}
-                                <div style={{
-                                    backgroundColor: 'var(--bg-secondary)',
-                                    padding: '16px',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border-light)'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</span>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{log.time}</span>
+                                <div className="activity-card">
+                                    <div className="activity-card-header">
+                                        <span className="activity-action">{log.action}</span>
+                                        <span className="activity-time">{log.time}</span>
                                     </div>
-                                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                                        {log.details}
-                                    </p>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                        Action by: <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{log.user}</span>
+                                    <p className="activity-details">{log.details}</p>
+                                    <div className="activity-actor">
+                                        Action by: <span>{log.user}</span>
                                     </div>
                                 </div>
                             </div>
@@ -70,6 +47,7 @@ const SystemActivity = () => {
                     </div>
                 )}
             </div>
+
         </div>
     );
 };

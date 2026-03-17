@@ -39,25 +39,26 @@ const AnalystDashboard = () => {
                 <div className="section-header" style={{ marginBottom: '24px' }}>
                     <h3>Portfolio Count Summary</h3>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Loans</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-primary)' }}>{activeCount}</div>
+                <div className="stats-summary-grid">
+                    <div className="stats-summary-card">
+                        <div className="stats-summary-label">Active Loans</div>
+                        <div className="stats-summary-value">{activeCount}</div>
                     </div>
-                    <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Closed (Paid Off)</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--success-text)' }}>{closedCount}</div>
+                    <div className="stats-summary-card">
+                        <div className="stats-summary-label">Closed (Paid Off)</div>
+                        <div className="stats-summary-value success">{closedCount}</div>
                     </div>
-                    <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Defaulted</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--danger-text)' }}>{defaultedCount}</div>
+                    <div className="stats-summary-card">
+                        <div className="stats-summary-label">Defaulted</div>
+                        <div className="stats-summary-value danger">{defaultedCount}</div>
                     </div>
-                    <div style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Total Originated</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--text-primary)' }}>{loans.length}</div>
+                    <div className="stats-summary-card">
+                        <div className="stats-summary-label">Total Originated</div>
+                        <div className="stats-summary-value">{loans.length}</div>
                     </div>
                 </div>
             </div>
+
         </div>
     );
 };

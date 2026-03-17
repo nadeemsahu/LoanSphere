@@ -65,9 +65,9 @@ const Navbar = memo(({ onToggleMenu }) => {
     }, [logout, navigate]);
 
     const openSettings = useCallback(() => {
+        // Settings page not yet implemented — close dropdown and stay on current page
         setIsDropdownOpen(false);
-        navigate(`/${user?.role}/settings`);
-    }, [navigate, user?.role]);
+    }, []);
 
     const toggleDropdown = useCallback(() => {
         setIsDropdownOpen(prev => !prev);
@@ -112,7 +112,7 @@ const Navbar = memo(({ onToggleMenu }) => {
                     {user?.role === 'lender' && (
                         <button
                             className="btn btn-primary btn-sm nav-action-btn"
-                            onClick={() => navigate('/lender/create-loan')}
+                            onClick={() => navigate('/lender/create-offer')}
                         >
                             + Create Offer
                         </button>

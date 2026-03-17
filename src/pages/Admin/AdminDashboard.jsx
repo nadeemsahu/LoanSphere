@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import DashboardCard from '../../components/DashboardCard/DashboardCard';
 import Table from '../../components/Table/Table';
 import { useDataContext } from '../../contexts/DataContext';
@@ -6,9 +6,37 @@ import '../../styles/dashboard.css';
 
 const AdminDashboard = () => {
     const { users, loans, transactions, activity } = useDataContext();
+    const [refreshed, setRefreshed] = useState(false);
+    const [exported, setExported] = useState(false);
 
     const activeLoans = loans.filter(l => l.status === 'Active');
     const totalTransactions = transactions.length;
+
+    const handleRefresh = useCallback(() => {
+        setRefreshed(true);
+        setTimeout(() => setRefreshed(false), 2000);
+    }, []);
+
+    const handleExport = useCallback(() => {
+        setExported(true);
+        // Build a simple CSV of the activity log and trigger download
+        const header = 'Action,User,Details,Time\n';
+        const rows = activity.map(a =>
+            [a.action, a.user, a.details, a.time]
+                .map(v => `"${String(v).replace(/"/g, '""')}"`)
+                .join(',')
+        ).join('\n');
+        const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'loansphere-activity-report.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setTimeout(() => setExported(false), 2000);
+    }, [activity]);
 
     const activityColumns = [
         { header: 'Action', accessor: 'action' },
@@ -25,11 +53,11 @@ const AdminDashboard = () => {
                     <p className="page-subtitle">Platform performance and system health monitoring</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-outline btn-sm" onClick={() => window.location.reload()}>
-                        Refresh Data
+                    <button className="btn btn-outline btn-sm" onClick={handleRefresh}>
+                        {refreshed ? '✓ Data Current' : 'Refresh Data'}
                     </button>
-                    <button className="btn btn-primary btn-sm" onClick={() => window.print()}>
-                        Download Report
+                    <button className="btn btn-primary btn-sm" onClick={handleExport}>
+                        {exported ? '✓ Exported!' : 'Export CSV'}
                     </button>
                 </div>
             </div>

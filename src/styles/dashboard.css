@@ -283,3 +283,147 @@
         /* tighter padding for mobile cards/tables */
     }
 }
+
+/* ─── Layout Utilities ─── */
+.flex-gap-xs { gap: var(--space-xs); }
+.flex-gap-sm { gap: var(--space-sm); }
+.flex-gap-md { gap: var(--space-md); }
+.flex-wrap { flex-wrap: wrap; }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.input-field.no-resize {
+    resize: none;
+}
+
+.input-field.resize-vertical {
+    resize: vertical;
+}
+
+
+/* ─── Stats Summary Layout ─── */
+.stats-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stats-summary-card {
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-summary-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.stats-summary-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stats-summary-value.success {
+    color: var(--success-text);
+}
+
+.stats-summary-value.danger {
+    color: var(--danger-text);
+}
+
+
+/* ─── Empty State ─── */
+.no-data {
+    text-align: center;
+    padding: var(--space-xl) var(--space-md);
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* ─── Activity Timeline ─── */
+.activity-timeline {
+    position: relative;
+    border-left: 2px solid var(--border-medium);
+    margin-left: 16px;
+    padding-left: 24px;
+}
+
+.activity-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.activity-dot {
+    position: absolute;
+    left: -37px;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.activity-card {
+    background-color: var(--bg-secondary);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.activity-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.activity-action {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.activity-details {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.activity-actor {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.activity-actor span {
+    font-weight: 500;
+    color: var(--text-primary);
+}

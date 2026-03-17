@@ -103,7 +103,7 @@ const CreateLoanOffer = () => {
                         />
                     </div>
 
-                    <div className="form-row-1" style={{ marginTop: 'var(--space-md)' }}>
+                    <div className="form-row-1 mt-md">
                         <div className="input-field-wrapper">
                             <label htmlFor="cl-description" className="input-label">Description / Purpose Filter</label>
                             <textarea
@@ -112,14 +112,13 @@ const CreateLoanOffer = () => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 placeholder="e.g. For small business expansion only"
-                                className="input-field"
+                                className="input-field resize-vertical"
                                 rows="3"
-                                style={{ resize: 'vertical' }}
                             />
                         </div>
                     </div>
 
-                    <div className="form-row-1" style={{ marginTop: 'var(--space-md)' }}>
+                    <div className="form-row-1 mt-md">
                         <div className="input-field-wrapper">
                             <label htmlFor="cl-optional" className="input-label">Optional Terms</label>
                             <textarea
@@ -128,18 +127,18 @@ const CreateLoanOffer = () => {
                                 value={formData.optionalTerms}
                                 onChange={handleChange}
                                 placeholder="e.g. Requires 680+ credit score, collateral needed"
-                                className="input-field"
+                                className="input-field resize-vertical"
                                 rows="2"
-                                style={{ resize: 'vertical' }}
                             />
                         </div>
                     </div>
 
-                    <div style={{ marginTop: 'var(--space-xl)' }}>
-                        <Button type="submit" size="lg" style={{ width: '100%' }}>
+                    <div className="mt-xl">
+                        <Button type="submit" size="lg" className="w-full">
                             Publish Loan Offer
                         </Button>
                     </div>
+
                 </form>
             </div>
         </div>

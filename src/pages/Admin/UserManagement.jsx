@@ -75,7 +75,7 @@ const UserManagement = () => {
         {
             header: 'Actions',
             render: (row) => (
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <div className="actions-cell">
                     <button className="btn btn-outline btn-sm" onClick={() => handleEditRole(row.id, row.role)}>
                         Edit Role
                     </button>
@@ -92,13 +92,14 @@ const UserManagement = () => {
 
     return (
         <div className="dashboard-container fade-in">
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="page-header">
                 <div>
                     <h1 className="page-title">User Management</h1>
                     <p className="page-subtitle">Manage system users, roles, and access levels directly.</p>
                 </div>
                 <button className="btn btn-primary" onClick={handleAddUser}>+ Add User</button>
             </div>
+
 
             {actionFeedback && (
                 <div role="alert" aria-live="polite" className="alert-success">
