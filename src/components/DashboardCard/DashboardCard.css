@@ -57,6 +57,7 @@
     margin-top: auto;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: var(--space-sm);
     border-top: 1px solid var(--border-light);
     padding-top: var(--space-md);

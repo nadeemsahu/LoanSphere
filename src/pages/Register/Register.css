@@ -7,14 +7,22 @@
 
 /* ─── Left card (form) ─── */
 .register-card {
-    flex: 0 0 440px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 40px 36px;
+    padding: 0;
     background-color: var(--bg-primary);
     border-right: 1px solid var(--border-light);
     overflow-y: auto;
+}
+
+.register-card-inner {
+    width: 100%;
+    max-width: 440px;
+    margin: auto;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ─── Right side panel ─── */

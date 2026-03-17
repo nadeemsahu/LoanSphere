@@ -59,15 +59,17 @@
 .dropdown-collapsed {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
     transform: translateY(-4px);
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
 }
 
 .dropdown-visible {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     transform: translateY(0);
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
 }
 
 .notification-header {

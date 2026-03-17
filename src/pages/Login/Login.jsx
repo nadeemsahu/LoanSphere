@@ -15,6 +15,7 @@ const Login = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [selectedRole, setSelectedRole] = useState('');
     const [error, setError] = useState('');
     const { theme, toggleTheme } = useTheme();
 
@@ -67,6 +68,7 @@ const Login = () => {
 
     const handleRoleSelect = (e) => {
         const role = e.target.value;
+        setSelectedRole(role);
         switch (role) {
             case 'borrower':
                 setEmail('borrower@loansphere.com');
@@ -130,7 +132,7 @@ const Login = () => {
                         name="sandbox-role"
                         className="form-input"
                         onChange={handleRoleSelect}
-                        defaultValue=""
+                        value={selectedRole}
                         autoComplete="off"
                         aria-label="Select your role to login"
                     >

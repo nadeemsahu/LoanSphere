@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -33,8 +33,20 @@ const Navbar = memo(({ onToggleMenu }) => {
     const { user, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
+
+    useEffect(() => {
+        if (!isDropdownOpen) return;
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isDropdownOpen]);
 
     // Memoize computed values to avoid recalculation on every render
     const breadcrumb = useMemo(() => getBreadcrumb(location.pathname), [location.pathname]);
@@ -117,7 +129,7 @@ const Navbar = memo(({ onToggleMenu }) => {
 
                     <NotificationDropdown />
 
-                    <div className="profile-dropdown-container">
+                    <div className="profile-dropdown-container" ref={dropdownRef}>
                         <button
                             className="profile-btn"
                             onClick={toggleDropdown}
@@ -141,10 +153,6 @@ const Navbar = memo(({ onToggleMenu }) => {
                         </button>
 
                         {/* CSS-based visibility — always mounted, shown/hidden via classes to avoid mount/unmount flash */}
-                        <div
-                            className={`dropdown-overlay-mask ${isDropdownOpen ? '' : 'dropdown-hidden'}`}
-                            onClick={closeDropdown}
-                        />
                         <div className={`profile-menu ${isDropdownOpen ? 'dropdown-visible' : 'dropdown-collapsed'}`}
                             aria-hidden={!isDropdownOpen}
                         >

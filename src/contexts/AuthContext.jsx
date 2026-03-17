@@ -13,6 +13,32 @@ const getAllUsers = () => {
     }
 };
 
+/**
+ * Decodes a Google JWT credential (id_token) client-side.
+ * The payload section is base64url-encoded JSON — safe to decode without a secret
+ * because we're only reading identity fields (sub, email, name, picture).
+ * Server-side signature verification is not needed for a localStorage-backed demo.
+ */
+const decodeJwt = (token) => {
+    try {
+        const base64Url = token.split('.')[1];
+        // Convert base64url to base64 by replacing URL-safe characters
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        // Pad to multiple of 4 if needed
+        const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
+        const jsonPayload = decodeURIComponent(
+            atob(padded)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (err) {
+        console.error('[AuthContext] Failed to decode Google JWT:', err);
+        return null;
+    }
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -32,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     // Login checks fsad_users (includes registered users) first, then falls back to seed
     const login = useCallback((email, password) => {
         const allUsers = getAllUsers();
-        const foundUser = allUsers.find(u => u.email === email && u.password === password);
+        const foundUser = allUsers.find(u => u.email.toLowerCase().trim() === email.toLowerCase().trim() && u.password === password);
         if (!foundUser) {
             return { success: false, message: 'Invalid email or password.' };
         }
@@ -71,49 +97,76 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
     }, []);
 
-    const googleLogin = useCallback(async (credential) => {
+    /**
+     * Google Login (localStorage-based, no backend required).
+     *
+     * Decodes the Google JWT credential client-side, then:
+     * - If the email already exists in localStorage → log them in directly.
+     * - If NOT → return { needsRegistration: true, googleData } so the UI
+     *   can redirect to /register and pre-fill the form.
+     *
+     * @param {string} credential - The id_token JWT string from Google GIS callback.
+     */
+    const googleLogin = useCallback((credential) => {
         try {
-            // Decode JWT directly:
-            let base64Url = credential.split('.')[1];
-            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            let jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
+            const payload = decodeJwt(credential);
 
-            const payload = JSON.parse(jsonPayload);
-            const { email, name, sub: googleId, picture } = payload;
+            if (!payload || !payload.email) {
+                console.error('[AuthContext] googleLogin: invalid or empty JWT payload.');
+                return Promise.resolve({ success: false, message: 'Invalid Google credential. Please try again.' });
+            }
+
+            const googleData = {
+                googleId: payload.sub,
+                email: payload.email,
+                name: payload.name || payload.email.split('@')[0],
+                picture: payload.picture || '',
+                // Keep the raw credential in case completeGoogleRegistration needs it later
+                token: credential,
+            };
+
+            console.log('[AuthContext] googleLogin: decoded payload', { email: googleData.email, name: googleData.name });
 
             const allUsers = getAllUsers();
-            let foundUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+            // Match by email (case-insensitive)
+            const existingUser = allUsers.find(
+                u => u.email.toLowerCase() === googleData.email.toLowerCase()
+            );
 
-            if (!foundUser) {
-                // User does NOT exist - return special state so UI can redirect to registration form
-                return {
-                    success: true,
-                    needsRegistration: true,
-                    googleData: { email, name, googleId, picture }
+            if (existingUser) {
+                // User exists — log them in
+                if (existingUser.status === 'Blocked') {
+                    return Promise.resolve({ success: false, message: 'Your account has been deactivated. Contact admin.' });
+                }
+                const { password: _pw, ...userWithoutPassword } = existingUser;
+                // Merge up-to-date Google fields (picture may have changed)
+                const merged = {
+                    ...userWithoutPassword,
+                    picture: googleData.picture || userWithoutPassword.picture,
+                    googleId: googleData.googleId || userWithoutPassword.googleId,
                 };
+                setUser(merged);
+                localStorage.setItem('user', JSON.stringify(merged));
+                console.log('[AuthContext] googleLogin: existing user logged in', merged.email);
+                return Promise.resolve({ success: true, needsRegistration: false, user: merged });
+            } else {
+                // No account found — needs registration
+                console.log('[AuthContext] googleLogin: no account found, needs registration');
+                return Promise.resolve({ success: true, needsRegistration: true, googleData });
             }
-
-            // User EXISTS
-            if (foundUser.status === 'Blocked') {
-                return { success: false, message: 'Your account has been deactivated. Contact admin.' };
-            }
-
-            const { password: _pw, ...userWithoutPassword } = foundUser;
-            if (picture && !userWithoutPassword.picture) {
-                userWithoutPassword.picture = picture;
-            }
-
-            setUser(userWithoutPassword);
-            localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-            return { success: true, needsRegistration: false, user: userWithoutPassword };
         } catch (error) {
-            console.error('Error decoding Google response:', error);
-            return { success: false, message: 'Failed to authenticate with Google.' };
+            console.error('[AuthContext] googleLogin error:', error);
+            return Promise.resolve({ success: false, message: 'Google authentication failed. Please try again.' });
         }
     }, []);
 
+    /**
+     * Complete Google Registration (localStorage-based, no backend required).
+     *
+     * Creates a new user in localStorage using the Google identity data
+     * combined with the extra fields the user filled in (phone, role, optional password).
+     * Then immediately logs the user in.
+     */
     const completeGoogleRegistration = useCallback((userData) => {
         const { name, email, googleId, picture, phone, role, password } = userData;
 
@@ -122,9 +175,23 @@ export const AuthProvider = ({ children }) => {
             return { success: false, message: 'Invalid role. Only Borrower or Lender can register.' };
         }
 
+        if (!email || !name) {
+            return { success: false, message: 'Missing required Google identity data.' };
+        }
+
         const allUsers = getAllUsers();
+
+        // Edge case: email was registered in the meantime
         const emailTaken = allUsers.some(u => u.email.toLowerCase() === email.toLowerCase());
         if (emailTaken) {
+            // Account now exists — just log them in silently
+            const found = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (found) {
+                const { password: _pw, ...userWithoutPassword } = found;
+                setUser(userWithoutPassword);
+                localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+                return { success: true, user: userWithoutPassword };
+            }
             return { success: false, message: 'An account with this email already exists.' };
         }
 
@@ -132,20 +199,23 @@ export const AuthProvider = ({ children }) => {
             id: Date.now(),
             name: name.trim(),
             email: email.toLowerCase().trim(),
-            password: password || googleId, // If no optional password provided, fallback to googleId
+            // Use provided password or fall back to googleId as a placeholder credential
+            password: password || googleId || `google_${Date.now()}`,
             role,
-            phone: phone || '',
-            picture: picture || '',
-            googleId: googleId,
             status: 'Active',
+            googleId: googleId || null,
+            picture: picture || '',
+            phone: phone || '',
         };
 
         localStorage.setItem('fsad_users', JSON.stringify([newUser, ...allUsers]));
 
+        // Log them in immediately after registration
         const { password: _pw, ...userWithoutPassword } = newUser;
         setUser(userWithoutPassword);
         localStorage.setItem('user', JSON.stringify(userWithoutPassword));
 
+        console.log('[AuthContext] completeGoogleRegistration: new user created & logged in', newUser.email);
         return { success: true, user: userWithoutPassword };
     }, []);
 

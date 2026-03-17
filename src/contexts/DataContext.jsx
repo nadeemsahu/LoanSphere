@@ -59,13 +59,13 @@ export const DataProvider = ({ children }) => {
     }, [logActivity, addNotification]);
 
     const blockUser = useCallback((id) => {
-        setUsers(prev => prev.map(u => u.id === id ? { ...u, status: u.status === 'Blocked' ? 'Active' : 'Blocked' } : u));
+        setUsers(prev => prev.map(u => String(u.id) === String(id) ? { ...u, status: u.status === 'Blocked' ? 'Active' : 'Blocked' } : u));
         logActivity('User Status Toggle', 'Admin', `Toggled status for user ID ${id}`);
         addNotification(`User status updated`, 'warning');
     }, [logActivity, addNotification]);
 
     const editUserRole = useCallback((id, newRole) => {
-        setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
+        setUsers(prev => prev.map(u => String(u.id) === String(id) ? { ...u, role: newRole } : u));
         logActivity('User Role Update', 'Admin', `Changed role for user ID ${id} to ${newRole}`);
         addNotification(`User role updated to ${newRole}`, 'success');
     }, [logActivity, addNotification]);
@@ -78,7 +78,7 @@ export const DataProvider = ({ children }) => {
 
     // --- Loans ---
     const approveLoan = useCallback((id, lenderName) => {
-        setLoans(prev => prev.map(l => l.id === id
+        setLoans(prev => prev.map(l => String(l.id) === String(id)
             ? {
                 ...l,
                 status: 'Active',
@@ -96,7 +96,7 @@ export const DataProvider = ({ children }) => {
     }, [logActivity, addNotification]);
 
     const rejectLoanApplication = useCallback((id, lenderName) => {
-        setLoans(prev => prev.map(l => l.id === id ? { ...l, status: 'Rejected', approvedBy: lenderName || 'Lender' } : l));
+        setLoans(prev => prev.map(l => String(l.id) === String(id) ? { ...l, status: 'Rejected', approvedBy: lenderName || 'Lender' } : l));
         logActivity('Loan Rejected', lenderName || 'Lender', `Rejected loan application #${id}`);
         addNotification(`Loan application #${id} has been rejected`, 'warning');
     }, [logActivity, addNotification]);
@@ -150,13 +150,13 @@ export const DataProvider = ({ children }) => {
     }, [logActivity, addNotification]);
 
     const deleteOffer = useCallback((id, lenderName) => {
-        setOffers(prev => prev.filter(o => o.id !== id));
+        setOffers(prev => prev.filter(o => String(o.id) !== String(id)));
         logActivity('Offer Removed', lenderName || 'Lender', `Withdrew loan offer #${id} from marketplace`);
         addNotification(`Loan offer #${id} removed from marketplace`, 'warning');
     }, [logActivity, addNotification]);
 
     const applyForOffer = useCallback((id, borrowerName) => {
-        const offer = offers.find(o => o.id === id);
+        const offer = offers.find(o => String(o.id) === String(id));
         if (offer) {
             const newLoan = {
                 id: Date.now(),
@@ -178,7 +178,7 @@ export const DataProvider = ({ children }) => {
             };
             setLoans(prev => [newLoan, ...prev]);
         }
-        setOffers(prev => prev.filter(o => o.id !== id));
+        setOffers(prev => prev.filter(o => String(o.id) !== String(id)));
         logActivity('Offer Applied', borrowerName || 'Borrower', `Applied for offer #${id} (${offer?.lender})`);
         addNotification(`${borrowerName || 'Borrower'} accepted loan offer #${id}`, 'info');
     }, [offers, logActivity, addNotification]);

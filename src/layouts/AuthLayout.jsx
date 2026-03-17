@@ -1,8 +1,17 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/auth.css';
 
 const AuthLayout = () => {
+    const { user, loading } = useAuth();
+    
+    if (loading) return null; // Or a loader
+
+    if (user) {
+        return <Navigate to={`/${user.role}`} replace />;
+    }
+
     return (
         <div className="auth-layout">
             <div className="auth-container">

@@ -83,7 +83,13 @@ const Register = () => {
 
         if (result.success) {
             setSuccess(true);
-            setTimeout(() => navigate('/login'), 2200);
+            if (googleData && result.user?.role) {
+                // Google registration logs the user in immediately — go to dashboard
+                setTimeout(() => navigate(`/${result.user.role}`, { replace: true }), 2200);
+            } else {
+                // Manual registration — user must log in separately
+                setTimeout(() => navigate('/login'), 2200);
+            }
         } else {
             setError(result.message);
         }
@@ -114,6 +120,7 @@ const Register = () => {
     return (
         <div className="register-container">
             <div className="register-card">
+              <div className="register-card-inner">
                 {/* Header */}
                 <div className="register-header">
                     <div className="register-logo-row">
@@ -279,6 +286,7 @@ const Register = () => {
                         </p>
                     </form>
                 )}
+              </div>
             </div>
 
             {/* Side info panel */}
