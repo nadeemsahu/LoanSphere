@@ -150,9 +150,30 @@ export const AuthProvider = ({ children }) => {
                 console.log('[AuthContext] googleLogin: existing user logged in', merged.email);
                 return Promise.resolve({ success: true, needsRegistration: false, user: merged });
             } else {
-                // No account found — needs registration
-                console.log('[AuthContext] googleLogin: no account found, needs registration');
-                return Promise.resolve({ success: true, needsRegistration: true, googleData });
+                // No account found — automatically create as Borrower
+                console.log('[AuthContext] googleLogin: no account found, auto-creating as borrower');
+                
+                const newUser = {
+                    id: Date.now(),
+                    name: googleData.name.trim(),
+                    email: googleData.email.toLowerCase().trim(),
+                    password: googleData.googleId || `google_${Date.now()}`,
+                    role: 'borrower',
+                    status: 'Active',
+                    googleId: googleData.googleId || null,
+                    picture: googleData.picture || '',
+                    phone: '',
+                };
+
+                const allUsersUpdated = [newUser, ...allUsers];
+                localStorage.setItem('fsad_users', JSON.stringify(allUsersUpdated));
+
+                // Log them in immediately
+                const { password: _pw, ...userWithoutPassword } = newUser;
+                setUser(userWithoutPassword);
+                localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+
+                return Promise.resolve({ success: true, needsRegistration: false, user: userWithoutPassword });
             }
         } catch (error) {
             console.error('[AuthContext] googleLogin error:', error);
