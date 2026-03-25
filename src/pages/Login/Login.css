@@ -182,6 +182,7 @@ p.login-subtitle {
     border-radius: var(--radius-full);
     border: 1.5px solid var(--border-light);
     background-color: var(--bg-tertiary);
+    color: var(--text-primary);
     font-size: 0.9rem;
     cursor: pointer;
     display: flex;
