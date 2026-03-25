@@ -167,7 +167,7 @@ p.login-subtitle {
 }
 
 /* ─── Phase 2: LOGIN CARD CONTAINER ─── */
-.login-form-container {
+.login-container {
     position: relative;
     padding-top: 8px;
 }
