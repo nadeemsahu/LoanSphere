@@ -10,8 +10,8 @@ import './GoogleAuthButton.css';
  * @param {Function} onSuccess - Callback when authentication succeeds, passes the JWT credential.
  * @param {string} [text="continue_with"] - Button translation string, e.g. 'signin_with', 'signup_with', 'continue_with'
  */
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
+// Hardcoded Google Client ID for immediate Vercel deployment support
+const CLIENT_ID = '340707566273-h3tg2knu0kmimdcj8rvi0jvgq6juta7t.apps.googleusercontent.com';
 const GoogleAuthButton = ({ onSuccess, text = 'continue_with' }) => {
     const { theme } = useTheme();
     const buttonRef = useRef(null);
