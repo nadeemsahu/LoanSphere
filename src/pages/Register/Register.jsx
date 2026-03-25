@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import GoogleAuthButton from '../../components/GoogleAuthButton/GoogleAuthButton';
+import ThemeIcon from '../../components/ThemeIcon/ThemeIcon';
 import './Register.css';
 
 const Register = () => {
@@ -136,7 +137,7 @@ const Register = () => {
                                 aria-label="Toggle theme"
                                 title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                             >
-                                {theme === 'dark' ? '☀️' : '🌙'}
+                                <ThemeIcon theme={theme} />
                             </button>
                             <Link to="/home" className="register-home-link">← Home</Link>
                         </div>

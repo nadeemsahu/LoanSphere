@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import NotificationDropdown from '../NotificationDropdown/NotificationDropdown';
+import ThemeIcon from '../ThemeIcon/ThemeIcon';
 import './Navbar.css';
 
 // Generate a human-readable breadcrumb from a pathname
@@ -124,7 +125,7 @@ const Navbar = memo(({ onToggleMenu }) => {
                         aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
                         type="button"
                     >
-                        {theme === 'light' ? '🌙' : '☀️'}
+                        <ThemeIcon theme={theme} />
                     </button>
 
                     <NotificationDropdown />
