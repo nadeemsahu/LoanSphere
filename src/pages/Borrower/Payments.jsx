@@ -10,21 +10,25 @@ const Payments = () => {
     const { loans, transactions, addPayment } = useDataContext();
 
     const [processingId, setProcessingId] = useState(null);
+    const [paymentError, setPaymentError] = useState('');
 
     // Isolate active loans just to this borrower
-    const myLoans = loans.filter(l => l.borrower === borrowerName && l.status === 'Active');
+    const myLoans = loans.filter(l => String(l.userId) === String(user?.id) && l.status.toUpperCase() === 'ACTIVE');
 
     // Calculate remaining balances to determine if actually due
     const payableLoans = myLoans.map(loan => {
-        const loanPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName && t.loanId === loan.id);
+        const loanPayments = transactions.filter(t => String(t.loanId) === String(loan.id));
         const amountPaid = loanPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
         const originalAmount = parseFloat(loan.amount);
         const remainingBalance = Math.max(0, originalAmount - amountPaid);
 
-        // Mock EMI - If they owe more than structured nextPaymentAmount, they pay that.
-        // If they owe less, they just pay the remainder to clear the loan.
-        let dueAmount = parseFloat(loan.nextPaymentAmount || 0);
-        if (remainingBalance < dueAmount) dueAmount = remainingBalance;
+        // Calculate monthly EMI installment from principal ÷ term
+        // (loan.nextPaymentAmount does not exist in backend DTO)
+        const monthlyInstallment = loan.termMonths > 0
+            ? parseFloat((originalAmount / loan.termMonths).toFixed(2))
+            : originalAmount;
+        // If remaining is less than one full installment, pay the remainder
+        const dueAmount = remainingBalance < monthlyInstallment ? remainingBalance : monthlyInstallment;
 
         return {
             ...loan,
@@ -35,14 +39,16 @@ const Payments = () => {
         };
     }).filter(loan => loan.remainingBalance > 0);
 
-    const handlePayEmi = (loanId, amount) => {
+    const handlePayEmi = async (loanId, amount) => {
         setProcessingId(loanId);
-
-        // Simulate network/db processing delay for realistic UX
-        setTimeout(() => {
-            addPayment(amount, borrowerName, loanId);
+        setPaymentError('');
+        try {
+            await addPayment(amount, borrowerName, loanId);
+        } catch (err) {
+            setPaymentError(`Payment failed: ${err.message || 'Please try again.'}`);
+        } finally {
             setProcessingId(null);
-        }, 800);
+        }
     };
 
     const columns = [
@@ -65,13 +71,14 @@ const Payments = () => {
         },
     ];
 
-    const historicalPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName);
+    const myLoanIds = myLoans.map(l => String(l.id));
+    const historicalPayments = transactions.filter(t => myLoanIds.includes(String(t.loanId)));
 
     const historyColumns = [
         { header: 'TxID', accessor: 'id' },
         { header: 'Loan ID', render: (row) => row.loanId || '—' },
         { header: 'Amount', render: (row) => <span className="text-primary">+${parseFloat(row.amount).toLocaleString()}</span> },
-        { header: 'Date', accessor: 'date' },
+        { header: 'Date', accessor: 'paymentDate' },
         { header: 'Status', render: () => <span className="status-badge status-success">Success</span> },
     ];
 
@@ -83,6 +90,12 @@ const Payments = () => {
                     <p className="page-subtitle">Simulate real-time EMI payments to diminish your active loan balances.</p>
                 </div>
             </div>
+
+            {paymentError && (
+                <div role="alert" aria-live="polite" className="alert-error">
+                    ⚠️ {paymentError}
+                </div>
+            )}
 
             <div className="content-section" style={{ overflowX: 'auto', marginBottom: '24px' }}>
                 <div className="section-header">

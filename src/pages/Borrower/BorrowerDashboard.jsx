@@ -11,18 +11,25 @@ const BorrowerDashboard = () => {
     const { loans, transactions, activity } = useDataContext();
     const navigate = useNavigate();
 
-    // Data filtering restricted just to this borrower
-    const myLoans = loans.filter(l => l.borrower === borrowerName);
-    const myPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName);
+    // Data filtering by userId (matches backend LoanDto.userId)
+    const myLoans = loans.filter(l => String(l.userId) === String(user?.id));
+    const myPayments = transactions.filter(t => String(t.loanId) && myLoans.some(l => String(l.id) === String(t.loanId)));
 
-    const activeLoans = myLoans.filter(l => l.status === 'Active');
-    const pendingLoans = myLoans.filter(l => l.status === 'Pending');
+    const activeLoans = myLoans.filter(l => l.status.toUpperCase() === 'ACTIVE');
+    const pendingLoans = myLoans.filter(l => l.status.toUpperCase() === 'PENDING');
 
     const totalBorrowed = activeLoans.reduce((acc, l) => acc + parseFloat(l.amount), 0);
     const totalPaid = myPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
     const overallRemainingBalance = Math.max(0, totalBorrowed - totalPaid);
 
-    const upcomingEmi = activeLoans.reduce((acc, l) => acc + parseFloat(l.nextPaymentAmount || 0), 0);
+    // Upcoming EMI = sum of monthly installments for all active loans (amount ÷ termMonths)
+    // loan.nextPaymentAmount does not exist in the backend LoanDto
+    const upcomingEmi = activeLoans.reduce((acc, l) => {
+        const installment = l.termMonths > 0
+            ? parseFloat(l.amount) / l.termMonths
+            : parseFloat(l.amount);
+        return acc + installment;
+    }, 0);
 
     // Borrower specific activity logs
     const borrowerActivity = activity.filter(a => a.user === borrowerName || a.details.includes(borrowerName));

@@ -12,14 +12,14 @@ const MyApplications = () => {
     // Show all loans for this borrower that are pending or rejected
     // (If approved, they usually move fully to the "My Loans" active section conceptually, 
     // but for completeness tracking, we can show all application histories here.)
-    const myApplications = loans.filter(l => l.borrower === borrowerName);
+    const myApplications = loans.filter(l => String(l.userId) === String(user?.id));
 
     const columns = [
         { header: 'App ID', accessor: 'id' },
         { header: 'Lender', render: (row) => <span style={{ fontWeight: 500 }}>{row.approvedBy || 'Assigning...'}</span> },
         { header: 'Amount Requested', render: (row) => `$${row.amount.toLocaleString()}` },
         { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Date Applied', accessor: 'startDate' },
+        { header: 'Date Applied', accessor: 'applyDate' },
         { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
     ];
 

@@ -4,17 +4,44 @@ import Table from '../../components/Table/Table';
 import '../../styles/dashboard.css';
 
 const Transactions = () => {
-    const { transactions } = useDataContext();
+    const { transactions, loans, users } = useDataContext();
+
+    // Enrich transactions with borrower names and ensure default values exist
+    const enrichedTransactions = (transactions || []).map(tx => {
+        const loan = loans.find(l => String(l.id) === String(tx.loanId));
+        const borrower = users.find(u => String(u.id) === String(loan?.userId));
+        return {
+            ...tx,
+            borrowerName: borrower?.name || 'System',
+            displayStatus: tx.status || 'Success',
+            displayType: tx.type || 'Payment',
+            displayAmount: tx.amount ? parseFloat(tx.amount) : 0
+        };
+    });
 
     // Pure read-only rendering without any actions mapped
     const columns = [
-        { header: 'Transaction ID', accessor: 'id' },
+        { header: 'ID', accessor: 'id' },
         { header: 'Loan ID', render: (row) => row.loanId || 'System' },
-        { header: 'Borrower', accessor: 'borrower' },
-        { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
-        { header: 'Date', accessor: 'date' },
-        { header: 'Type', render: (row) => <span className={`status-badge ${row.type === 'Payment' ? 'status-success' : 'status-pending'}`}>{row.type}</span> },
-        { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
+        { header: 'Borrower', accessor: 'borrowerName' },
+        { header: 'Amount', render: (row) => `$${row.displayAmount.toLocaleString()}` },
+        { header: 'Date', accessor: 'paymentDate' },
+        { 
+            header: 'Type', 
+            render: (row) => (
+                <span className={`status-badge ${(row.displayType === 'Payment') ? 'status-success' : 'status-pending'}`}>
+                    {row.displayType}
+                </span>
+            ) 
+        },
+        { 
+            header: 'Status', 
+            render: (row) => (
+                <span className={`status-badge status-${row.displayStatus.toLowerCase()}`}>
+                    {row.displayStatus}
+                </span>
+            ) 
+        },
     ];
 
     return (
@@ -29,12 +56,12 @@ const Transactions = () => {
             <div className="content-section">
                 <div className="section-header">
                     <h3>Global Financial Ledger</h3>
-                    <span className="badge-count">{transactions.length}</span>
+                    <span className="badge-count">{enrichedTransactions.length}</span>
                 </div>
-                {transactions.length === 0 ? (
+                {enrichedTransactions.length === 0 ? (
                     <div className="no-data">No transactions have been recorded on the platform yet.</div>
                 ) : (
-                    <Table columns={columns} data={transactions} />
+                    <Table columns={columns} data={enrichedTransactions} />
                 )}
             </div>
         </div>

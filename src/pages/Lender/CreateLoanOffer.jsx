@@ -28,7 +28,7 @@ const CreateLoanOffer = () => {
             setError('Minimum loan amount is $1,000.');
             return;
         }
-        createOffer(formData, lenderName);
+        createOffer(formData, user.id);
         setSubmitted(true);
         setError('');
         setFormData({ amount: '', interest: '', term: '', description: '', optionalTerms: '' });

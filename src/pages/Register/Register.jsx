@@ -33,7 +33,7 @@ const Register = () => {
         setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -69,7 +69,7 @@ const Register = () => {
 
         if (googleData) {
             // Advanced Google Signup Flow
-            result = completeGoogleRegistration({
+            result = await completeGoogleRegistration({
                 ...googleData,
                 phone,
                 role,
@@ -77,7 +77,7 @@ const Register = () => {
             });
         } else {
             // Manual Signup Flow
-            result = register(name, email, password, role);
+            result = await register(name, email, password, role);
         }
 
         setLoading(false);

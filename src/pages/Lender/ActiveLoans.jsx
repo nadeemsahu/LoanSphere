@@ -10,22 +10,19 @@ const ActiveLoans = () => {
     const lenderName = user?.name || 'Lender';
 
     // Get all loans managed by this lender that are not pending or rejected.
-    const activePortfolio = loans.filter(l => l.approvedBy === lenderName && l.status !== 'Pending' && l.status !== 'Rejected');
+    const activePortfolio = loans.filter(l => (l.approvedBy === user?.name) && l.status.toUpperCase() !== 'PENDING' && l.status.toUpperCase() !== 'REJECTED');
 
     // Calculate remaining balance dynamically for realistic display
     const enrichedPortfolio = activePortfolio.map(loan => {
         // Find payments purely for this loan by loanId
-        // The spec requested calculating remaining balance based on payments. 
-        // If loanId isn't perfectly set on mock transactions, we match borrower and assume it applies.
-        // For production, tx.loanId should perfectly link.
-        const loanPayments = transactions.filter(t => t.type === 'Payment' && (t.loanId === loan.id || t.borrower === loan.borrower));
+        const loanPayments = transactions.filter(t => String(t.loanId) === String(loan.id));
         const amountPaid = loanPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
         const originalAmount = parseFloat(loan.amount);
         // Simple remaining balance calculation (ignoring complex interest mechanics for UI mock)
         const remaining = Math.max(0, originalAmount - amountPaid);
 
-        // Adjust mock status to Closed if fully paid
-        const currentStatus = remaining === 0 ? 'Closed' : loan.status;
+        // Adjust mock status to CLOSED if fully paid
+        const currentStatus = remaining === 0 ? 'CLOSED' : loan.status;
 
         return {
             ...loan,
@@ -37,7 +34,7 @@ const ActiveLoans = () => {
 
     const columns = [
         { header: 'Loan ID', accessor: 'id' },
-        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrower}</span> },
+        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrowerName}</span> },
         { header: 'Amount Issued', render: (row) => `$${row.amount.toLocaleString()}` },
         { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
         { header: 'Remaining Balance', render: (row) => <span style={{ color: row.remainingBalance === 0 ? 'var(--text-secondary)' : 'var(--text-primary)', fontWeight: 600 }}>${row.remainingBalance.toLocaleString()}</span> },

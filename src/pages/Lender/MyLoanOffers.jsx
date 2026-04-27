@@ -12,7 +12,7 @@ const MyLoanOffers = () => {
     const lenderName = user?.name || 'Lender';
     const [feedback, setFeedback] = useState('');
 
-    const myOffers = offers.filter(o => o.lender === lenderName);
+    const myOffers = offers.filter(o => String(o.lenderId) === String(user?.id));
 
     const handleDelete = (id) => {
         if (window.confirm(`Remove offer #${id} from the marketplace? Borrowers will no longer be able to apply.`)) {
@@ -26,14 +26,14 @@ const MyLoanOffers = () => {
         { header: 'Offer ID', accessor: 'id' },
         { header: 'Amount', render: (row) => <span style={{ fontWeight: 500 }}>${row.amount.toLocaleString()}</span> },
         { header: 'Interest', render: (row) => `${row.interestRate}%` },
-        { header: 'Duration', render: (row) => `${row.term} months` },
+        { header: 'Duration', render: (row) => `${row.termMonths} months` },
         {
             header: 'Description',
             render: (row) => row.description
                 ? <span title={row.description} style={{ maxWidth: '200px', display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.description}</span>
                 : <span className="text-secondary-xs">—</span>
         },
-        { header: 'Status', render: () => <span className="status-badge status-active">Open for Apps</span> },
+        { header: 'Status', render: (row) => <span className={`status-badge status-${row.status?.toLowerCase() || 'open'}`}>{row.status || 'OPEN'}</span> },
         {
             header: 'Action',
             render: (row) => (

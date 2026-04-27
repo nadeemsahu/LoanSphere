@@ -1,30 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { users as seedUsers } from '../data/mockData';
+import { apiClient } from '../api/apiClient';
 
 const AuthContext = createContext(null);
 
-// Helper: always reads the latest user list (seed + localStorage registered users)
-const getAllUsers = () => {
-    try {
-        const stored = localStorage.getItem('fsad_users');
-        return stored ? JSON.parse(stored) : seedUsers;
-    } catch {
-        return seedUsers;
-    }
-};
-
-/**
- * Decodes a Google JWT credential (id_token) client-side.
- * The payload section is base64url-encoded JSON — safe to decode without a secret
- * because we're only reading identity fields (sub, email, name, picture).
- * Server-side signature verification is not needed for a localStorage-backed demo.
- */
 const decodeJwt = (token) => {
     try {
         const base64Url = token.split('.')[1];
-        // Convert base64url to base64 by replacing URL-safe characters
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        // Pad to multiple of 4 if needed
         const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
         const jsonPayload = decodeURIComponent(
             atob(padded)
@@ -44,214 +26,93 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch {
-                localStorage.removeItem('user');
-            }
-        }
         setLoading(false);
     }, []);
 
-    // Login checks fsad_users (includes registered users) first, then falls back to seed
-    const login = useCallback((email, password) => {
-        const allUsers = getAllUsers();
-        const foundUser = allUsers.find(u => u.email.toLowerCase().trim() === email.toLowerCase().trim() && u.password === password);
-        if (!foundUser) {
-            return { success: false, message: 'Invalid email or password.' };
+    const login = useCallback(async (email, password) => {
+        try {
+            const data = await apiClient.post('/users/login', { email, password });
+            const loggedInUser = { ...data, role: data.role.toLowerCase() };
+            setUser(loggedInUser);
+            return { success: true, user: loggedInUser };
+        } catch (error) {
+            return { success: false, message: error.message || 'Invalid email or password.' };
         }
-        if (foundUser.status === 'Blocked') {
-            return { success: false, message: 'Your account has been deactivated. Contact admin.' };
-        }
-        const { password: _pw, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-        return { success: true, user: userWithoutPassword };
     }, []);
 
-    // Register: Borrower and Lender only. Writes to fsad_users so DataContext and login pick it up.
-    const register = useCallback((name, email, password, role) => {
-        const ALLOWED_ROLES = ['borrower', 'lender'];
-        if (!ALLOWED_ROLES.includes(role)) {
-            return { success: false, message: 'Invalid role. Only Borrower or Lender can register.' };
+    const register = useCallback(async (name, email, password, role) => {
+        try {
+            const payload = {
+                name,
+                email,
+                password,
+                role: role.toUpperCase()
+            };
+            await apiClient.post('/users/register', payload);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message || 'Registration failed.' };
         }
-
-        const allUsers = getAllUsers();
-        const emailTaken = allUsers.some(u => u.email.toLowerCase() === email.toLowerCase());
-        if (emailTaken) {
-            return { success: false, message: 'An account with this email already exists.' };
-        }
-
-        const newUser = {
-            id: Date.now(),
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            password,
-            role,
-            status: 'Active',
-        };
-
-        localStorage.setItem('fsad_users', JSON.stringify([newUser, ...allUsers]));
-        return { success: true };
     }, []);
 
-    /**
-     * Google Login (localStorage-based, no backend required).
-     *
-     * Decodes the Google JWT credential client-side, then:
-     * - If the email already exists in localStorage → log them in directly.
-     * - If NOT → return { needsRegistration: true, googleData } so the UI
-     *   can redirect to /register and pre-fill the form.
-     *
-     * @param {string} credential - The id_token JWT string from Google GIS callback.
-     */
-    const googleLogin = useCallback((credential) => {
+    const googleLogin = useCallback(async (credential) => {
         try {
             const payload = decodeJwt(credential);
-
             if (!payload || !payload.email) {
-                console.error('[AuthContext] googleLogin: invalid or empty JWT payload.');
-                return Promise.resolve({ success: false, message: 'Invalid Google credential. Please try again.' });
+                return { success: false, message: 'Invalid Google credential.' };
             }
 
-            const googleData = {
-                googleId: payload.sub,
-                email: payload.email,
-                name: payload.name || payload.email.split('@')[0],
-                picture: payload.picture || '',
-                // Keep the raw credential in case completeGoogleRegistration needs it later
-                token: credential,
-            };
-
-            console.log('[AuthContext] googleLogin: decoded payload', { email: googleData.email, name: googleData.name });
-
-            const allUsers = getAllUsers();
-            // Match by email (case-insensitive)
-            const existingUser = allUsers.find(
-                u => u.email.toLowerCase() === googleData.email.toLowerCase()
-            );
-
-            if (existingUser) {
-                // User exists — log them in
-                if (existingUser.status === 'Blocked') {
-                    return Promise.resolve({ success: false, message: 'Your account has been deactivated. Contact admin.' });
-                }
-                const { password: _pw, ...userWithoutPassword } = existingUser;
-                // Merge up-to-date Google fields (picture may have changed)
-                const merged = {
-                    ...userWithoutPassword,
-                    picture: googleData.picture || userWithoutPassword.picture,
-                    googleId: googleData.googleId || userWithoutPassword.googleId,
+            // Google OAuth mapping: to perfectly integrate this we would need a proper OAuth endpoint,
+            // but since syllabus restricts to explicit DTOs we'll try to log in via a default password
+            // or trigger registration.
+            try {
+                // Try logging in assuming they registered via Google earlier and their googleId is password
+                const res = await apiClient.post('/users/login', { email: payload.email, password: payload.sub });
+                const loggedInUser = { ...res, role: res.role.toLowerCase() };
+                setUser(loggedInUser);
+                return { success: true, needsRegistration: false, user: loggedInUser };
+            } catch (err) {
+                // Return needs registration
+                const googleData = {
+                    googleId: payload.sub,
+                    email: payload.email,
+                    name: payload.name || payload.email.split('@')[0],
+                    picture: payload.picture || '',
+                    token: credential,
                 };
-                setUser(merged);
-                localStorage.setItem('user', JSON.stringify(merged));
-                console.log('[AuthContext] googleLogin: existing user logged in', merged.email);
-                return Promise.resolve({ success: true, needsRegistration: false, user: merged });
-            } else {
-                // No account found — automatically create as Borrower
-                console.log('[AuthContext] googleLogin: no account found, auto-creating as borrower');
-                
-                const newUser = {
-                    id: Date.now(),
-                    name: googleData.name.trim(),
-                    email: googleData.email.toLowerCase().trim(),
-                    password: googleData.googleId || `google_${Date.now()}`,
-                    role: 'borrower',
-                    status: 'Active',
-                    googleId: googleData.googleId || null,
-                    picture: googleData.picture || '',
-                    phone: '',
-                };
-
-                const allUsersUpdated = [newUser, ...allUsers];
-                localStorage.setItem('fsad_users', JSON.stringify(allUsersUpdated));
-
-                // Log them in immediately
-                const { password: _pw, ...userWithoutPassword } = newUser;
-                setUser(userWithoutPassword);
-                localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-
-                return Promise.resolve({ success: true, needsRegistration: false, user: userWithoutPassword });
+                return { success: true, needsRegistration: true, googleData };
             }
         } catch (error) {
-            console.error('[AuthContext] googleLogin error:', error);
-            return Promise.resolve({ success: false, message: 'Google authentication failed. Please try again.' });
+            return { success: false, message: 'Google authentication failed.' };
         }
     }, []);
 
-    /**
-     * Complete Google Registration (localStorage-based, no backend required).
-     *
-     * Creates a new user in localStorage using the Google identity data
-     * combined with the extra fields the user filled in (phone, role, optional password).
-     * Then immediately logs the user in.
-     */
-    const completeGoogleRegistration = useCallback((userData) => {
+    const completeGoogleRegistration = useCallback(async (userData) => {
         const { name, email, googleId, picture, phone, role, password } = userData;
-
-        const ALLOWED_ROLES = ['borrower', 'lender'];
-        if (!ALLOWED_ROLES.includes(role)) {
-            return { success: false, message: 'Invalid role. Only Borrower or Lender can register.' };
+        try {
+            const pwdToUse = password || googleId || `google_${Date.now()}`;
+            const payload = {
+                name,
+                email,
+                password: pwdToUse,
+                role: role.toUpperCase()
+            };
+            const createdUser = await apiClient.post('/users/register', payload);
+            const userToSet = { ...createdUser, role: createdUser.role.toLowerCase(), picture, phone };
+            setUser(userToSet);
+            return { success: true, user: userToSet };
+        } catch (error) {
+            return { success: false, message: error.message || 'Google registration failed.' };
         }
-
-        if (!email || !name) {
-            return { success: false, message: 'Missing required Google identity data.' };
-        }
-
-        const allUsers = getAllUsers();
-
-        // Edge case: email was registered in the meantime
-        const emailTaken = allUsers.some(u => u.email.toLowerCase() === email.toLowerCase());
-        if (emailTaken) {
-            // Account now exists — just log them in silently
-            const found = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (found) {
-                const { password: _pw, ...userWithoutPassword } = found;
-                setUser(userWithoutPassword);
-                localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-                return { success: true, user: userWithoutPassword };
-            }
-            return { success: false, message: 'An account with this email already exists.' };
-        }
-
-        const newUser = {
-            id: Date.now(),
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            // Use provided password or fall back to googleId as a placeholder credential
-            password: password || googleId || `google_${Date.now()}`,
-            role,
-            status: 'Active',
-            googleId: googleId || null,
-            picture: picture || '',
-            phone: phone || '',
-        };
-
-        localStorage.setItem('fsad_users', JSON.stringify([newUser, ...allUsers]));
-
-        // Log them in immediately after registration
-        const { password: _pw, ...userWithoutPassword } = newUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-
-        console.log('[AuthContext] completeGoogleRegistration: new user created & logged in', newUser.email);
-        return { success: true, user: userWithoutPassword };
     }, []);
 
     const updateUser = (data) => {
         const updatedUser = { ...user, ...data };
         setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        const allUsers = getAllUsers();
-        const updatedAll = allUsers.map(u => u.id === updatedUser.id ? { ...u, ...data } : u);
-        localStorage.setItem('fsad_users', JSON.stringify(updatedAll));
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('user');
     };
 
     return (

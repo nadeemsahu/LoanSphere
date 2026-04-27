@@ -9,7 +9,7 @@ const AdminDashboard = () => {
     const [refreshed, setRefreshed] = useState(false);
     const [exported, setExported] = useState(false);
 
-    const activeLoans = loans.filter(l => l.status === 'Active');
+    const activeLoans = loans.filter(l => l.status === 'ACTIVE');
     const totalTransactions = transactions.length;
 
     const handleRefresh = useCallback(() => {

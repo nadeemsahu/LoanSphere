@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
-import { users as initialUsers, loans as initialLoans, loanOffers as initialOffers, transactions as initialTransactions, activityLogs as initialLogs } from '../data/mockData';
+import { apiClient } from '../api/apiClient';
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
 
@@ -7,34 +8,74 @@ const getTimeLabel = () => {
     return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
-const safeParse = (key, fallback) => {
-    try {
-        const item = localStorage.getItem(key);
-        return item ? JSON.parse(item) : fallback;
-    } catch {
-        return fallback;
-    }
-};
-
 export const DataProvider = ({ children }) => {
-    const [users, setUsers] = useState(() => safeParse('fsad_users', initialUsers));
-    const [loans, setLoans] = useState(() => safeParse('fsad_loans', initialLoans));
-    const [offers, setOffers] = useState(() => safeParse('fsad_offers', initialOffers));
-    const [transactions, setTransactions] = useState(() => safeParse('fsad_transactions', initialTransactions));
-    const [activity, setActivity] = useState(() => safeParse('fsad_activity', initialLogs));
-    const [notifications, setNotifications] = useState(() => safeParse('fsad_notifications', []));
+    const { user } = useAuth();
 
-    // Split into separate effects — only writes the changed slice to localStorage
-    useEffect(() => { localStorage.setItem('fsad_users', JSON.stringify(users)); }, [users]);
-    useEffect(() => { localStorage.setItem('fsad_loans', JSON.stringify(loans)); }, [loans]);
-    useEffect(() => { localStorage.setItem('fsad_offers', JSON.stringify(offers)); }, [offers]);
-    useEffect(() => { localStorage.setItem('fsad_transactions', JSON.stringify(transactions)); }, [transactions]);
-    useEffect(() => { localStorage.setItem('fsad_activity', JSON.stringify(activity)); }, [activity]);
-    useEffect(() => { localStorage.setItem('fsad_notifications', JSON.stringify(notifications)); }, [notifications]);
+    // Server-managed states
+    const [users, setUsers] = useState([]);
+    const [loans, setLoans] = useState([]);
+    const [offers, setOffers] = useState([]);
+    const [transactions, setTransactions] = useState([]);
+
+    // Local-only states (activity log & notifications are UI-only)
+    const [activity, setActivity] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+
+    // --- Fetch helpers ---
+    const fetchUsers = useCallback(async () => {
+        try {
+            const data = await apiClient.get('/users');
+            if (Array.isArray(data)) {
+                // Normalise role to lowercase for frontend consistency (Sidebar/Auth)
+                setUsers(data.map(u => ({ ...u, role: u.role?.toLowerCase() })));
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    }, []);
+
+    const fetchLoans = useCallback(async () => {
+        try {
+            const data = await apiClient.get('/loans?pageSize=500&sortDir=desc');
+            if (data && data.content) setLoans(data.content);
+        } catch (error) {
+            console.error('Error fetching loans:', error);
+        }
+    }, []);
+
+    const fetchOffers = useCallback(async () => {
+        try {
+            const data = await apiClient.get('/offers?pageSize=500&sortDir=desc');
+            if (data && data.content) setOffers(data.content);
+        } catch (error) {
+            console.error('Error fetching offers:', error);
+        }
+    }, []);
+
+    const fetchPayments = useCallback(async () => {
+        try {
+            const data = await apiClient.get('/payments?pageSize=500&sortDir=desc');
+            if (data && data.content) {
+                setTransactions(data.content);
+            } else if (Array.isArray(data)) {
+                setTransactions(data);
+            }
+        } catch (error) {
+            console.error('Error fetching payments:', error);
+        }
+    }, []);
+
+    // Initial load
+    useEffect(() => {
+        fetchUsers();
+        fetchLoans();
+        fetchOffers();
+        fetchPayments();
+    }, [fetchUsers, fetchLoans, fetchOffers, fetchPayments]);
 
     // --- Activity Logging & Notifications ---
-    const logActivity = useCallback((action, user, details) => {
-        setActivity(prev => [{ action, user, details, time: `Just now (${getTimeLabel()})` }, ...prev]);
+    const logActivity = useCallback((action, actor, details) => {
+        setActivity(prev => [{ action, user: actor, details, time: `Just now (${getTimeLabel()})` }, ...prev]);
     }, []);
 
     const addNotification = useCallback((message, type = 'info') => {
@@ -50,171 +91,195 @@ export const DataProvider = ({ children }) => {
         setNotifications([]);
     }, []);
 
-    // --- Users (Admin only) ---
-    const addUser = useCallback((newUser) => {
-        const created = { ...newUser, id: Date.now(), status: 'Active' };
-        setUsers(prev => [created, ...prev]);
-        logActivity('Add User', 'Admin', `Added new user: ${newUser.name} (${newUser.role})`);
-        addNotification(`New ${newUser.role} user created: ${newUser.name}`, 'success');
-    }, [logActivity, addNotification]);
+    // --- Users ---
+    const addUser = useCallback(async (userData) => {
+        try {
+            await apiClient.post('/users/register', { 
+                ...userData, 
+                password: 'password', // Default password for admin-added users
+                role: userData.role.toUpperCase()
+            });
+            addNotification(`User ${userData.name} added successfully`, 'success');
+            fetchUsers();
+        } catch (error) {
+            addNotification('Failed to add user: ' + error.message, 'error');
+        }
+    }, [addNotification, fetchUsers]);
 
-    const blockUser = useCallback((id) => {
-        setUsers(prev => prev.map(u => String(u.id) === String(id) ? { ...u, status: u.status === 'Blocked' ? 'Active' : 'Blocked' } : u));
-        logActivity('User Status Toggle', 'Admin', `Toggled status for user ID ${id}`);
-        addNotification(`User status updated`, 'warning');
-    }, [logActivity, addNotification]);
+    const blockUser = useCallback(async (id) => {
+        try {
+            const user = users.find(u => u.id === id);
+            const newStatus = user.status === 'BLOCKED' ? 'ACTIVE' : 'BLOCKED';
+            await apiClient.put(`/users/${id}/status`, { status: newStatus });
+            addNotification(`User status updated to ${newStatus}`, 'success');
+            fetchUsers();
+        } catch (error) {
+            addNotification('Failed to update status: ' + error.message, 'error');
+        }
+    }, [users, addNotification, fetchUsers]);
 
-    const editUserRole = useCallback((id, newRole) => {
-        setUsers(prev => prev.map(u => String(u.id) === String(id) ? { ...u, role: newRole } : u));
-        logActivity('User Role Update', 'Admin', `Changed role for user ID ${id} to ${newRole}`);
-        addNotification(`User role updated to ${newRole}`, 'success');
-    }, [logActivity, addNotification]);
+    const editUserRole = useCallback(async (id, role) => {
+        try {
+            await apiClient.put(`/users/${id}/role`, { role: role.toUpperCase() });
+            addNotification('User role updated successfully', 'success');
+            fetchUsers();
+        } catch (error) {
+            addNotification('Failed to update role: ' + error.message, 'error');
+        }
+    }, [addNotification, fetchUsers]);
 
-    const removeUser = useCallback((id) => {
-        setUsers(prev => prev.filter(u => String(u.id) !== String(id)));
-        logActivity('User Removed', 'Admin', `Removed user ID ${id}`);
-        addNotification(`User removed (ID: ${id})`, 'error');
-    }, [logActivity, addNotification]);
+    const removeUser = useCallback(async (id) => {
+        try {
+            await apiClient.delete(`/users/${id}`);
+            addNotification('User deleted successfully', 'warning');
+            fetchUsers();
+        } catch (error) {
+            addNotification('Failed to delete user: ' + error.message, 'error');
+        }
+    }, [addNotification, fetchUsers]);
 
     // --- Loans ---
-    const approveLoan = useCallback((id, lenderName) => {
-        setLoans(prev => prev.map(l => String(l.id) === String(id)
-            ? {
-                ...l,
-                status: 'Active',
-                approvedBy: lenderName || 'Lender',
-                stages: (l.stages || []).map(s =>
-                    s.name === 'Approved' || s.name === 'Disbursed'
-                        ? { ...s, completed: true, date: new Date().toISOString().split('T')[0] }
-                        : s
-                )
-            }
-            : l
-        ));
-        logActivity('Loan Approved', lenderName || 'Lender', `Approved loan request #${id}`);
-        addNotification(`Loan #${id} has been approved by ${lenderName || 'Lender'}`, 'success');
-    }, [logActivity, addNotification]);
+    const approveLoan = useCallback(async (id, lenderName) => {
+        try {
+            await apiClient.put(`/loans/${id}/status?status=ACTIVE&approvedBy=${encodeURIComponent(lenderName || 'Lender')}`);
+            logActivity('Loan Approved', lenderName || 'Lender', `Approved loan request #${id}`);
+            addNotification(`Loan #${id} has been approved by ${lenderName || 'Lender'}`, 'success');
+            fetchLoans();
+        } catch (error) {
+            addNotification('Failed to approve loan: ' + error.message, 'error');
+        }
+    }, [logActivity, addNotification, fetchLoans]);
 
-    const rejectLoanApplication = useCallback((id, lenderName) => {
-        setLoans(prev => prev.map(l => String(l.id) === String(id) ? { ...l, status: 'Rejected', approvedBy: lenderName || 'Lender' } : l));
-        logActivity('Loan Rejected', lenderName || 'Lender', `Rejected loan application #${id}`);
-        addNotification(`Loan application #${id} has been rejected`, 'warning');
-    }, [logActivity, addNotification]);
+    const rejectLoanApplication = useCallback(async (id, lenderName) => {
+        try {
+            await apiClient.put(`/loans/${id}/status?status=REJECTED`);
+            logActivity('Loan Rejected', lenderName || 'Lender', `Rejected loan application #${id}`);
+            addNotification(`Loan application #${id} has been rejected`, 'warning');
+            fetchLoans();
+        } catch (error) {
+            addNotification('Failed to reject loan: ' + error.message, 'error');
+        }
+    }, [logActivity, addNotification, fetchLoans]);
 
-    const deleteLoan = useCallback((id) => {
-        setLoans(prev => prev.filter(l => String(l.id) !== String(id)));
-        logActivity('Loan Deleted', 'Admin', `Deleted loan #${id}`);
-        addNotification(`Loan #${id} deleted`, 'error');
-    }, [logActivity, addNotification]);
+    const deleteLoan = useCallback(async (id) => {
+        try {
+            await apiClient.delete(`/loans/${id}`);
+            logActivity('Loan Deleted', 'Admin', `Deleted loan #${id}`);
+            addNotification(`Loan #${id} deleted`, 'error');
+            fetchLoans();
+        } catch (error) {
+            addNotification('Failed to delete loan: ' + error.message, 'error');
+        }
+    }, [logActivity, addNotification, fetchLoans]);
 
-    const applyForLoan = useCallback((loanData, borrowerName) => {
+    const applyForLoan = useCallback(async (loanData, borrowerName) => {
         const amount = parseFloat(loanData.amount);
-        const term = parseInt(loanData.term, 10);
-        const newLoan = {
-            id: Date.now(),
-            borrower: borrowerName || loanData.borrowerName || 'Borrower',
-            amount,
-            purpose: loanData.purpose || '',
-            status: 'Pending',
-            interestRate: parseFloat(loanData.interest || 6.5),
-            term,
-            startDate: new Date().toISOString().split('T')[0],
-            nextPaymentAmount: Math.round(amount / term),
-            approvedBy: null,
-            stages: [
-                { name: 'Application Submitted', completed: true, date: new Date().toISOString().split('T')[0] },
-                { name: 'Underwriting', completed: false },
-                { name: 'Approved', completed: false },
-                { name: 'Disbursed', completed: false }
-            ]
-        };
-        setLoans(prev => [newLoan, ...prev]);
-        logActivity('Loan Application', borrowerName || 'Borrower', `Submitted application for $${amount.toLocaleString()}`);
-        addNotification(`${borrowerName || 'Borrower'} applied for a $${amount.toLocaleString()} loan`, 'info');
-    }, [logActivity, addNotification]);
+        const termMonths = parseInt(loanData.term, 10);
+        try {
+            await apiClient.post('/loans/apply', {
+                amount,
+                termMonths,
+                purpose: loanData.purpose || '',
+                userId: user?.id
+            });
+            logActivity('Loan Application', borrowerName || 'Borrower', `Submitted application for $${amount.toLocaleString()}`);
+            addNotification(`Loan application for $${amount.toLocaleString()} submitted`, 'info');
+            fetchLoans();
+        } catch (error) {
+            addNotification('Failed to apply for loan: ' + error.message, 'error');
+            throw error;
+        }
+    }, [logActivity, addNotification, fetchLoans, user]);
 
     // --- Offers ---
-    const createOffer = useCallback((offerData, lenderName) => {
-        const newOffer = {
-            id: Date.now(),
-            amount: parseFloat(offerData.amount),
-            interestRate: parseFloat(offerData.interest),
-            term: parseInt(offerData.term, 10),
-            description: offerData.description || '',
-            optionalTerms: offerData.optionalTerms || '',
-            lender: lenderName || 'Lender'
-        };
-        setOffers(prev => [newOffer, ...prev]);
-        logActivity('Offer Created', lenderName || 'Lender', `Published loan offer for $${newOffer.amount.toLocaleString()}`);
-        addNotification(`New loan offer for $${newOffer.amount.toLocaleString()} published by ${lenderName || 'Lender'}`, 'success');
-    }, [logActivity, addNotification]);
-
-    const deleteOffer = useCallback((id, lenderName) => {
-        setOffers(prev => prev.filter(o => String(o.id) !== String(id)));
-        logActivity('Offer Removed', lenderName || 'Lender', `Withdrew loan offer #${id} from marketplace`);
-        addNotification(`Loan offer #${id} removed from marketplace`, 'warning');
-    }, [logActivity, addNotification]);
-
-    const applyForOffer = useCallback((id, borrowerName) => {
-        const offer = offers.find(o => String(o.id) === String(id));
-        if (offer) {
-            const newLoan = {
-                id: Date.now(),
-                borrower: borrowerName || 'Borrower',
-                amount: offer.amount,
-                purpose: offer.description || 'Applied from Loan Offer',
-                status: 'Pending',
-                interestRate: offer.interestRate,
-                term: offer.term,
-                startDate: new Date().toISOString().split('T')[0],
-                nextPaymentAmount: Math.round(offer.amount / offer.term),
-                approvedBy: offer.lender,
-                stages: [
-                    { name: 'Application Submitted', completed: true, date: new Date().toISOString().split('T')[0] },
-                    { name: 'Underwriting', completed: false },
-                    { name: 'Approved', completed: false },
-                    { name: 'Disbursed', completed: false }
-                ]
-            };
-            setLoans(prev => [newLoan, ...prev]);
+    const createOffer = useCallback(async (formData, lenderId) => {
+        try {
+            await apiClient.post('/offers', {
+                amount: parseFloat(formData.amount),
+                interestRate: parseFloat(formData.interest),
+                termMonths: parseInt(formData.term, 10),
+                description: formData.description || '',
+                optionalTerms: formData.optionalTerms || '',
+                lenderId: lenderId
+            });
+            logActivity('Offer Created', 'Lender', `Published loan offer for $${parseFloat(formData.amount).toLocaleString()}`);
+            addNotification(`New loan offer for $${parseFloat(formData.amount).toLocaleString()} published`, 'success');
+            fetchOffers();
+        } catch (error) {
+            addNotification('Failed to create offer: ' + error.message, 'error');
+            throw error;
         }
-        setOffers(prev => prev.filter(o => String(o.id) !== String(id)));
-        logActivity('Offer Applied', borrowerName || 'Borrower', `Applied for offer #${id} (${offer?.lender})`);
-        addNotification(`${borrowerName || 'Borrower'} accepted loan offer #${id}`, 'info');
-    }, [offers, logActivity, addNotification]);
+    }, [logActivity, addNotification, fetchOffers]);
+
+    const deleteOffer = useCallback(async (id) => {
+        try {
+            await apiClient.delete(`/offers/${id}`);
+            logActivity('Offer Removed', 'Lender', `Withdrew loan offer #${id} from marketplace`);
+            addNotification(`Loan offer #${id} removed from marketplace`, 'warning');
+            fetchOffers();
+        } catch (error) {
+            addNotification('Failed to remove offer: ' + error.message, 'error');
+        }
+    }, [logActivity, addNotification, fetchOffers]);
+
+    const applyForOffer = useCallback(async (offerId, borrowerName) => {
+        const offer = offers.find(o => String(o.id) === String(offerId));
+        if (!offer) {
+            addNotification('Offer not found', 'error');
+            return;
+        }
+        try {
+            await apiClient.post('/loans/apply', {
+                amount: offer.amount,
+                termMonths: offer.termMonths,
+                interestRate: offer.interestRate,
+                purpose: offer.description || 'Applied from Loan Offer',
+                userId: user?.id
+            });
+            logActivity('Offer Applied', borrowerName || 'Borrower', `Applied for offer #${offerId}`);
+            addNotification(`Loan application submitted for offer #${offerId}`, 'info');
+            fetchLoans();
+        } catch (error) {
+            addNotification('Failed to apply for offer: ' + error.message, 'error');
+            throw error;
+        }
+    }, [offers, logActivity, addNotification, fetchLoans, user]);
 
     // --- Transactions & Payments ---
-    const addPayment = useCallback((amount, borrowerName, loanId) => {
+    const addPayment = useCallback(async (amount, borrowerName, loanId) => {
         const floatAmount = parseFloat(amount);
-        const newPayment = {
-            id: `TXN${Date.now().toString().slice(-6)}`,
-            date: new Date().toISOString().split('T')[0],
-            amount: floatAmount,
-            type: 'Payment',
-            status: 'Success',
-            borrower: borrowerName || 'Borrower',
-            loanId: loanId || null
-        };
-        setTransactions(prev => [newPayment, ...prev]);
-        logActivity('Payment Received', borrowerName || 'Borrower', `Paid $${floatAmount.toLocaleString()} towards loan ${loanId ? '#' + loanId : 'balance'}`);
-        addNotification(`Payment of $${floatAmount.toLocaleString()} successful`, 'success');
-    }, [logActivity, addNotification]);
+        try {
+            await apiClient.post('/payments', {
+                amount: floatAmount,
+                paymentDate: new Date().toISOString().split('T')[0],
+                loanId: loanId
+            });
+            logActivity('Payment Received', borrowerName || 'Borrower', `Paid $${floatAmount.toLocaleString()} towards loan #${loanId}`);
+            addNotification(`Payment of $${floatAmount.toLocaleString()} successful`, 'success');
+            await fetchLoans();    // refresh loans to get updated status
+            await fetchPayments(); // refresh transactions/payments
+        } catch (error) {
+            addNotification('Payment failed: ' + error.message, 'error');
+            throw error;
+        }
+    }, [logActivity, addNotification, fetchLoans, fetchPayments]);
 
-    // Memoize the entire context value to prevent unnecessary re-renders of consumers
     const value = useMemo(() => ({
-        users, addUser, blockUser, removeUser, editUserRole,
+        users, addUser, blockUser, removeUser, editUserRole, fetchUsers,
         loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
         offers, createOffer, deleteOffer, applyForOffer,
-        transactions, addPayment,
+        transactions, payments: transactions, addPayment, fetchPayments, // Expose both names for compatibility
         activity, logActivity,
-        notifications, markNotificationRead, clearNotifications
+        notifications, markNotificationRead, clearNotifications,
+        fetchLoans, fetchOffers
     }), [
-        users, addUser, blockUser, removeUser, editUserRole,
+        users, addUser, blockUser, removeUser, editUserRole, fetchUsers,
         loans, approveLoan, rejectLoanApplication, deleteLoan, applyForLoan,
         offers, createOffer, deleteOffer, applyForOffer,
-        transactions, addPayment,
+        transactions, addPayment, fetchPayments,
         activity, logActivity,
-        notifications, markNotificationRead, clearNotifications
+        notifications, markNotificationRead, clearNotifications,
+        fetchLoans, fetchOffers
     ]);
 
     return (

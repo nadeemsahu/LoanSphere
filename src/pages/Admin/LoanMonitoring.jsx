@@ -7,11 +7,11 @@ const LoanMonitoring = () => {
 
     const columns = [
         { header: 'Loan ID', accessor: 'id' },
-        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrower}</span> },
+        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrowerName}</span> },
         { header: 'Lender', render: (row) => row.approvedBy ? row.approvedBy : <span className="text-secondary-xs">Unassigned</span> },
         { header: 'Amount', render: (row) => `$${row.amount.toLocaleString()}` },
         { header: 'Interest', render: (row) => `${row.interestRate}%` },
-        { header: 'Duration', render: (row) => `${row.term} months` },
+        { header: 'Duration', render: (row) => `${row.termMonths} months` },
         { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
     ];
 

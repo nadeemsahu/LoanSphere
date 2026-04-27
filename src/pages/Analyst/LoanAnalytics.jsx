@@ -9,7 +9,7 @@ const LoanAnalytics = () => {
     const totalLoans = loans.length;
 
     // Groupings
-    const statuses = ['Active', 'Pending', 'Closed', 'Defaulted'];
+    const statuses = ['ACTIVE', 'PENDING', 'CLOSED', 'DEFAULTED'];
     const distribution = statuses.reduce((acc, status) => {
         acc[status] = loans.filter(l => l.status === status).length;
         return acc;
@@ -59,7 +59,7 @@ const LoanAnalytics = () => {
                                         <div style={{
                                             width: `${percentage}%`,
                                             height: '100%',
-                                            backgroundColor: status === 'Active' ? 'var(--primary-color)' : status === 'Closed' ? 'var(--success-color, #22c55e)' : status === 'Defaulted' ? 'var(--danger-color, #ef4444)' : 'var(--text-tertiary)'
+                                            backgroundColor: status === 'ACTIVE' ? 'var(--primary-color)' : status === 'CLOSED' ? 'var(--success-color, #22c55e)' : status === 'DEFAULTED' ? 'var(--danger-color, #ef4444)' : 'var(--text-tertiary)'
                                         }}></div>
                                     </div>
                                 </div>

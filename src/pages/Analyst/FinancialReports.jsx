@@ -3,18 +3,18 @@ import { useDataContext } from '../../contexts/DataContext';
 import '../../styles/dashboard.css';
 
 const FinancialReports = () => {
-    const { loans, transactions } = useDataContext();
+    const { loans, payments } = useDataContext();
     const [generating, setGenerating] = useState(false);
     const [reportReady, setReportReady] = useState(false);
 
     const totalIssued = loans.reduce((acc, l) => acc + parseFloat(l.amount || 0), 0);
-    const totalRepaid = transactions.filter(t => t.type === 'Payment').reduce((acc, t) => acc + parseFloat(t.amount || 0), 0);
+    const totalRepaid = payments.reduce((acc, t) => acc + parseFloat(t.amount || 0), 0);
 
     // Simulate interest earned (mock computing standard 5% yield over repaid)
     const interestEarned = totalRepaid * 0.05;
 
     // Default losses
-    const defaultLosses = loans.filter(l => l.status === 'Defaulted').reduce((acc, l) => acc + parseFloat(l.amount || 0), 0);
+    const defaultLosses = loans.filter(l => l.status === 'DEFAULTED').reduce((acc, l) => acc + parseFloat(l.amount || 0), 0);
 
     const handleGenerateReport = () => {
         setGenerating(true);

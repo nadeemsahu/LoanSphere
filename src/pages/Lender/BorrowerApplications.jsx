@@ -16,29 +16,37 @@ const BorrowerApplications = () => {
         setTimeout(() => setActionFeedback(''), 3500);
     };
 
-    const handleApprove = (id) => {
-        approveLoan(id, lenderName);
-        showFeedback(`✅ Application #${id} approved! Loan is now active.`);
+    const handleApprove = async (id) => {
+        try {
+            await approveLoan(id, lenderName);
+            showFeedback(`✅ Application #${id} approved! Loan is now active.`);
+        } catch (error) {
+            // Error handling is managed by DataContext notifications
+        }
     };
 
-    const handleReject = (id) => {
+    const handleReject = async (id) => {
         const confirm = window.confirm(`Are you sure you want to reject application #${id}?`);
         if (confirm) {
-            rejectLoanApplication(id, lenderName);
-            showFeedback(`Application #${id} has been rejected.`);
+            try {
+                await rejectLoanApplication(id, lenderName);
+                showFeedback(`Application #${id} has been rejected.`);
+            } catch (error) {
+                // Error handling is managed by DataContext notifications
+            }
         }
     };
 
     // Show all pending loans — any lender can approve/reject pending applications
     // (approvedBy is null on pending loans; it only gets set after a decision)
-    const pendingApplications = loans.filter(l => l.status === 'Pending');
+    const pendingApplications = loans.filter(l => l.status.toUpperCase() === 'PENDING');
 
     const columns = [
         { header: 'App ID', accessor: 'id' },
-        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrower}</span> },
+        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrowerName}</span> },
         { header: 'Amount Requested', render: (row) => `$${row.amount.toLocaleString()}` },
         { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Term', render: (row) => `${row.term} months` },
+        { header: 'Term', render: (row) => `${row.termMonths} months` },
         { header: 'Purpose', render: (row) => row.purpose || <span className="text-secondary-xs">—</span> },
         { header: 'Status', render: (row) => <span className={`status-badge status-${row.status.toLowerCase()}`}>{row.status}</span> },
         {

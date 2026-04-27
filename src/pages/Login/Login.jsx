@@ -20,7 +20,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const { theme, toggleTheme } = useTheme();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -29,9 +29,9 @@ const Login = () => {
             return;
         }
 
-        const result = login(email, password);
+        const result = await login(email, password);
         if (result.success) {
-            const role = result.user?.role;
+            const role = result.user?.role?.toLowerCase();
             const targetDashboard = `/${role}`;
 
             // Determine if the 'from' path is valid for this user's role

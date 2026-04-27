@@ -6,15 +6,15 @@ import '../../styles/dashboard.css';
 const RiskAnalysis = () => {
     const { loans } = useDataContext();
 
-    const defaultedLoans = loans.filter(l => l.status === 'Defaulted');
+    const defaultedLoans = loans.filter(l => l.status === 'DEFAULTED');
     const defaultCount = defaultedLoans.length;
 
     // Simulate high risk borrower count (e.g. users with defaulted loans or multiple pending large loans)
     // For this mock, we'll just derive it from defaults to keep it read-only and analytical
-    const highRiskBorrowersCount = new Set(defaultedLoans.map(l => l.borrower)).size + (loans.length > 5 ? 2 : 0);
+    const highRiskBorrowersCount = new Set(defaultedLoans.map(l => l.borrowerName)).size + (loans.length > 5 ? 2 : 0);
 
     // Simulated late payments (1 in 5 active loans flagged as late for mock)
-    const activeLoans = loans.filter(l => l.status === 'Active');
+    const activeLoans = loans.filter(l => l.status === 'ACTIVE');
     const latePaymentStats = Math.floor(activeLoans.length / 5) || 0;
 
     // Platform risk score indicator (0-100, lower is better)
@@ -23,10 +23,10 @@ const RiskAnalysis = () => {
 
     const defaultColumns = [
         { header: 'Loan ID', accessor: 'id' },
-        { header: 'Borrower', accessor: 'borrower' },
-        { header: 'Amount Lost', render: (row) => <span className="text-danger" style={{ fontWeight: 600 }}>${row.amount.toLocaleString()}</span> },
+        { header: 'Borrower', accessor: 'borrowerName' },
+        { header: 'Amount Lost', render: (row) => <span className="text-danger" style={{ fontWeight: 600 }}>${parseFloat(row.amount || 0).toLocaleString()}</span> },
         { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Status', render: () => <span className="status-badge status-danger">Defaulted</span> }
+        { header: 'Status', render: () => <span className="status-badge status-danger">DEFAULTED</span> }
     ];
 
     return (

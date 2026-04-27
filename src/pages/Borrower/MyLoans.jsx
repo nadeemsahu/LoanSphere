@@ -11,26 +11,27 @@ const MyLoans = () => {
     const { loans, transactions } = useDataContext();
 
     // Isolate loans just to this borrower
-    const myLoans = loans.filter(l => l.borrower === borrowerName);
+    // Isolate loans just to this borrower
+    const myLoans = loans.filter(l => String(l.userId) === String(user?.id));
 
     // Specifically show active or completed loans here
-    const activeAndClosed = myLoans.filter(l => l.status === 'Active' || l.status === 'Closed' || l.status === 'Defaulted');
+    const activeAndClosed = myLoans.filter(l => l.status.toUpperCase() === 'ACTIVE' || l.status.toUpperCase() === 'CLOSED' || l.status.toUpperCase() === 'DEFAULTED');
 
     // Create an enriched array with dynamic remaining balance calculations
     const enrichedLoans = activeAndClosed.map(loan => {
         // Find all payments made to this specific loan
-        const loanPayments = transactions.filter(t => t.type === 'Payment' && t.borrower === borrowerName && t.loanId === loan.id);
+        const loanPayments = transactions.filter(t => String(t.loanId) === String(loan.id));
         const amountPaid = loanPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
 
         const originalAmount = parseFloat(loan.amount);
         const remainingBalance = Math.max(0, originalAmount - amountPaid);
 
-        const isClosed = remainingBalance === 0 && loan.status === 'Active'; // Pseudo determination
+        const isClosed = remainingBalance === 0 && loan.status === 'ACTIVE'; // Pseudo determination
 
         return {
             ...loan,
             remainingBalance,
-            displayStatus: isClosed ? 'Closed' : loan.status,
+            displayStatus: isClosed ? 'CLOSED' : loan.status,
             amountPaid
         };
     });

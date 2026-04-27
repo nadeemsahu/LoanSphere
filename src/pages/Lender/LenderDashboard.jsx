@@ -13,26 +13,23 @@ const LenderDashboard = () => {
     const navigate = useNavigate();
 
     // Specific counts for this lender
-    const myOffers = offers.filter(o => o.lender === lenderName);
-    const myLoans = loans.filter(l => l.approvedBy === lenderName);
+    const myOffers = offers.filter(o => String(o.lenderId) === String(user?.id));
+    const myLoans = loans.filter(l => l.approvedBy === user?.name); // approvedBy is string in Loans
 
     // Derived states
-    const activeLoansCount = myLoans.filter(l => l.status === 'Active').length;
+    const activeLoansCount = myLoans.filter(l => l.status.toUpperCase() === 'ACTIVE').length;
 
     // All pending loans in the system (any lender can review and approve/reject)
-    // This is consistent with the BorrowerApplications page which also shows all pending
-    const pendingApplications = loans.filter(l => l.status === 'Pending');
+    const pendingApplications = loans.filter(l => l.status.toUpperCase() === 'PENDING');
     const pendingCount = pendingApplications.length;
 
     // Payments specific to this lender (my borrowers paying my loans)
-    const myBorrowers = myLoans.map(l => l.borrower);
-    // Note: If transactions have loanId, we can strictly link it. 
-    // Here we filter by borrower name as a proxy for the lender's payments, matching the requested spec.
-    const myPayments = transactions.filter(t => t.type === 'Payment' && myBorrowers.includes(t.borrower));
+    const myLoanIds = myLoans.map(l => String(l.id));
+    const myPayments = transactions.filter(t => myLoanIds.includes(String(t.loanId)));
     const totalEarnings = myPayments.reduce((acc, p) => acc + parseFloat(p.amount || 0), 0);
 
-    // Lender specific activity logs
-    const lenderActivity = activity.filter(a => a.user === lenderName || a.details.includes(lenderName) || myBorrowers.includes(a.user));
+    // Lender specific activity logs (filter by lender's own name/details)
+    const lenderActivity = activity.filter(a => a.user === lenderName || a.details.includes(lenderName));
 
     const getActionIcon = (action) => {
         const act = action.toLowerCase();

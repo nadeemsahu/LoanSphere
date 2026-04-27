@@ -10,22 +10,19 @@ const PaymentTracking = () => {
     const lenderName = user?.name || 'Lender';
 
     // To track payments, we must identify which payments belong to this lender.
-    // 1. Identify all borrowers for this lender's approved loans.
-    const myLoans = loans.filter(l => l.approvedBy === lenderName);
-    const myBorrowers = myLoans.map(l => l.borrower);
+    const myLoans = loans.filter(l => l.approvedBy === user?.name);
+    const myLoanIds = myLoans.map(l => String(l.id));
 
-    // 2. Filter transactions to only 'Payment' types from those borrowers.
-    const myPayments = transactions.filter(t => t.type === 'Payment' && myBorrowers.includes(t.borrower));
+    // 2. Filter transactions to only those matching my loan IDs.
+    const myPayments = transactions.filter(t => myLoanIds.includes(String(t.loanId)));
 
     // 3. For extra detail requested (Remaining Balance), we map the payments to their respective loan remaining balances
     const enrichedPayments = myPayments.map(payment => {
-        // Try to find the exact loan this payment was for (mock data might rely purely on borrower name)
-        const relatedLoan = myLoans.find(l => l.id === payment.loanId || l.borrower === payment.borrower);
+        const relatedLoan = myLoans.find(l => String(l.id) === String(payment.loanId));
 
         let remainingBalance = 0;
         if (relatedLoan) {
-            // Calculate remaining balance dynamically for realistic display
-            const loanPayments = transactions.filter(t => t.type === 'Payment' && (t.loanId === relatedLoan.id || t.borrower === relatedLoan.borrower));
+            const loanPayments = transactions.filter(t => String(t.loanId) === String(relatedLoan.id));
             const amountPaid = loanPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
             const originalAmount = parseFloat(relatedLoan.amount);
             remainingBalance = Math.max(0, originalAmount - amountPaid);
@@ -34,16 +31,17 @@ const PaymentTracking = () => {
         return {
             ...payment,
             relatedLoanId: relatedLoan?.id || '—',
+            borrowerName: relatedLoan?.borrowerName || 'Borrower',
             remainingBalance
         };
     });
 
     const columns = [
         { header: 'TxID', accessor: 'id' },
-        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrower}</span> },
+        { header: 'Borrower', render: (row) => <span style={{ fontWeight: 500 }}>{row.borrowerName}</span> },
         { header: 'Loan ID', accessor: 'relatedLoanId' },
-        { header: 'Amount Paid', render: (row) => <span className="text-primary" style={{ fontWeight: 600 }}>+${row.amount.toLocaleString()}</span> },
-        { header: 'Date', accessor: 'date' },
+        { header: 'Amount Paid', render: (row) => <span className="text-primary" style={{ fontWeight: 600 }}>+${parseFloat(row.amount).toLocaleString()}</span> },
+        { header: 'Date', accessor: 'paymentDate' },
         { header: 'Remaining Balance', render: (row) => row.remainingBalance > 0 ? `$${row.remainingBalance.toLocaleString()}` : <span className="text-secondary-xs">Paid Off</span> },
     ];
 

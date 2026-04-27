@@ -25,10 +25,10 @@ const BrowseOffers = () => {
     };
 
     const offerColumns = [
-        { header: 'Lender', render: (row) => <span style={{ fontWeight: 600 }}>{row.lender}</span> },
+        { header: 'Lender', render: (row) => <span style={{ fontWeight: 600 }}>{row.lenderName}</span> },
         { header: 'Amount', render: (row) => <span className="text-primary" style={{ fontWeight: 500 }}>${row.amount.toLocaleString()}</span> },
         { header: 'Interest Rate', render: (row) => `${row.interestRate}%` },
-        { header: 'Term', render: (row) => `${row.term} months` },
+        { header: 'Term', render: (row) => `${row.termMonths} months` },
         {
             header: 'Description',
             render: (row) => row.description

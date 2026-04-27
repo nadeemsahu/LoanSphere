@@ -4,21 +4,21 @@ import { useDataContext } from '../../contexts/DataContext';
 import '../../styles/dashboard.css';
 
 const AnalystDashboard = () => {
-    const { loans, transactions } = useDataContext();
+    const { loans, payments } = useDataContext();
 
     // High-level system metrics
     const totalIssued = loans.reduce((acc, l) => acc + parseFloat(l.amount || 0), 0);
-    const totalTransactions = transactions.reduce((acc, t) => acc + parseFloat(t.amount || 0), 0);
+    const totalTransactions = payments.reduce((acc, t) => acc + parseFloat(t.amount || 0), 0);
 
-    // Simulate estimated interest generated (mock computation for analytical view)
+    // Simulate estimated interest generated (computational fallback for analytical view)
     const estimatedInterest = loans.reduce((acc, l) => {
-        const rate = parseFloat(l.interestRate || 0) / 100;
+        const rate = parseFloat(l.interestRate || 5.0) / 100;
         return acc + (parseFloat(l.amount || 0) * rate);
     }, 0);
 
-    const activeCount = loans.filter(l => l.status === 'Active').length;
-    const closedCount = loans.filter(l => l.status === 'Closed').length;
-    const defaultedCount = loans.filter(l => l.status === 'Defaulted').length;
+    const activeCount = loans.filter(l => l.status === 'ACTIVE').length;
+    const closedCount = loans.filter(l => l.status === 'CLOSED').length;
+    const defaultedCount = loans.filter(l => l.status === 'DEFAULTED').length;
 
     return (
         <div className="dashboard-container fade-in">
