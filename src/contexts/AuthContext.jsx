@@ -22,7 +22,10 @@ const decodeJwt = (token) => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('loansphere_user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -34,6 +37,7 @@ export const AuthProvider = ({ children }) => {
             const data = await apiClient.post('/users/login', { email, password });
             const loggedInUser = { ...data, role: data.role.toLowerCase() };
             setUser(loggedInUser);
+            localStorage.setItem('loansphere_user', JSON.stringify(loggedInUser));
             return { success: true, user: loggedInUser };
         } catch (error) {
             return { success: false, message: error.message || 'Invalid email or password.' };
@@ -70,6 +74,7 @@ export const AuthProvider = ({ children }) => {
                 const res = await apiClient.post('/users/login', { email: payload.email, password: payload.sub });
                 const loggedInUser = { ...res, role: res.role.toLowerCase() };
                 setUser(loggedInUser);
+                localStorage.setItem('loansphere_user', JSON.stringify(loggedInUser));
                 return { success: true, needsRegistration: false, user: loggedInUser };
             } catch (err) {
                 // Return needs registration
@@ -100,6 +105,7 @@ export const AuthProvider = ({ children }) => {
             const createdUser = await apiClient.post('/users/register', payload);
             const userToSet = { ...createdUser, role: createdUser.role.toLowerCase(), picture, phone };
             setUser(userToSet);
+            localStorage.setItem('loansphere_user', JSON.stringify(userToSet));
             return { success: true, user: userToSet };
         } catch (error) {
             return { success: false, message: error.message || 'Google registration failed.' };
@@ -109,10 +115,12 @@ export const AuthProvider = ({ children }) => {
     const updateUser = (data) => {
         const updatedUser = { ...user, ...data };
         setUser(updatedUser);
+        localStorage.setItem('loansphere_user', JSON.stringify(updatedUser));
     };
 
     const logout = () => {
         setUser(null);
+        localStorage.removeItem('loansphere_user');
     };
 
     return (
