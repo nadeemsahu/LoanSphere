@@ -18,6 +18,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [selectedRole, setSelectedRole] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
     const handleSubmit = async (e) => {
@@ -29,7 +30,10 @@ const Login = () => {
             return;
         }
 
+        setIsSubmitting(true);
         const result = await login(email, password);
+        setIsSubmitting(false);
+
         if (result.success) {
             const role = result.user?.role?.toLowerCase();
             const targetDashboard = `/${role}`;
@@ -179,8 +183,8 @@ const Login = () => {
                     />
                 </div>
 
-                <button type="submit" className="btn-primary btn-full">
-                    Sign In
+                <button type="submit" className="btn-primary btn-full" disabled={isSubmitting}>
+                    {isSubmitting ? 'Signing In...' : 'Sign In'}
                 </button>
             </form>
 

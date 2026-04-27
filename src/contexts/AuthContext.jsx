@@ -23,8 +23,14 @@ const decodeJwt = (token) => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('loansphere_user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        try {
+            const savedUser = localStorage.getItem('loansphere_user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (e) {
+            console.error('Failed to parse user from localStorage', e);
+            localStorage.removeItem('loansphere_user');
+            return null;
+        }
     });
     const [loading, setLoading] = useState(true);
 
