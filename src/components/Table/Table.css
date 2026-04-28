@@ -124,7 +124,6 @@
 .text-right {
     text-align: right;
 }
-
 .text-center {
     text-align: center;
 }
@@ -139,4 +138,11 @@
     display: inline-block;
     vertical-align: middle;
     white-space: nowrap;
+}
+
+/* ─── Actions Cell ─── */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }

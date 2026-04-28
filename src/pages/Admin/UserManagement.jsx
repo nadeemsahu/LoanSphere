@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Table from '../../components/Table/Table';
+import Button from '../../components/Button/Button';
 import { useDataContext } from '../../contexts/DataContext';
 
 const UserManagement = () => {
@@ -76,15 +77,15 @@ const UserManagement = () => {
             header: 'Actions',
             render: (row) => (
                 <div className="actions-cell">
-                    <button className="btn btn-outline btn-sm" onClick={() => handleEditRole(row.id, row.role)}>
+                    <Button variant="outline" size="sm" onClick={() => handleEditRole(row.id, row.role)}>
                         Edit Role
-                    </button>
-                    <button className="btn btn-outline btn-sm" onClick={() => handleToggleStatus(row.id, row.status)}>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleToggleStatus(row.id, row.status)}>
                         {row.status === 'Blocked' ? 'Activate' : 'Deactivate'}
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleRemoveUser(row.id, row.name)}>
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={() => handleRemoveUser(row.id, row.name)}>
                         Delete
-                    </button>
+                    </Button>
                 </div>
             )
         }
@@ -97,7 +98,7 @@ const UserManagement = () => {
                     <h1 className="page-title">User Management</h1>
                     <p className="page-subtitle">Manage system users, roles, and access levels directly.</p>
                 </div>
-                <button className="btn btn-primary" onClick={handleAddUser}>+ Add User</button>
+                <Button variant="primary" onClick={handleAddUser}>+ Add User</Button>
             </div>
 
 
