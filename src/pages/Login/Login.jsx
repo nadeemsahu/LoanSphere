@@ -89,7 +89,7 @@ const Login = () => {
                 break;
             case 'admin':
                 setEmail('admin@loansphere.com');
-                setPassword('password');
+                setPassword('password123');
                 break;
             default:
                 setEmail('');
